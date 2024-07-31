@@ -32,15 +32,15 @@ class SponsorController
                  
               });
     
-              await user.save();
-              res.status(201).json(user);
+        const result=  await sponsor.save();
+              res.status(201).json({message:"sponsor added successfully",result});
             } catch (err) {
                
               res.status(500).json({ message:err.messages });
             }
           });
         } catch (err) {
-          console.error("Error in addsponsor function:", err);
+          console.error("Error in adding function:", err);
           res.status(500).json({ message: "Error creating sponsor" });
         }
       };
