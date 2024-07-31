@@ -37,6 +37,10 @@ const userSchema = mongoose.Schema({
   matchNo: {
     type: Number,
   },
+  seasonId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "season",
+  },
   created: { type: Date, default: Date.now },
   updated: { type: Date, default: Date.now },
 });
