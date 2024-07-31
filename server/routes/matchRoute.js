@@ -3,7 +3,7 @@ const express = require("express");
 const {
   createMatch,
   getMatchById,
-  UpdateMatch,
+  updateMatch,
   deleteMatch,
 } = require("../controllers/matchController");
 

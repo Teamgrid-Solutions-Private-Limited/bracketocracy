@@ -105,17 +105,60 @@ class InvitationController {
   // };
 
 
+  // static deleteinvite = async (req, res) => {
+  //   try {
+  //     const data = req.params.id;
+  //     const result = await Invite.findByIdAndDelete(data);
+  //     res
+  //       .status(200)
+  //       .json({ message: "invitation deleted successfully", info: result });
+  //   } catch (err) {
+  //     res.status(404).json({ error: err.message });
+  //   }
+  // }
+
   static deleteinvite = async (req, res) => {
     try {
-      const data = req.params.id;
-      const result = await Invite.findByIdAndDelete(data);
-      res
-        .status(200)
-        .json({ message: "invitation deleted successfully", info: result });
+      const inviteId = req.params.id;
+  
+      // Find the invitation to get associated leagueId and userId
+      const invitation = await Invite.findById(inviteId);
+      if (!invitation) {
+        return res.status(404).json({ message: 'Invitation not found.' });
+      }
+  
+      // Get leagueId and userId from the invitation
+      const { leagueId, userId } = invitation;
+  
+      // Delete the invitation
+      const result = await Invite.findByIdAndDelete(inviteId);
+      if (!result) {
+        return res.status(500).json({ message: 'Failed to delete invitation.' });
+      }
+  
+      // Find the league
+      const league = await League.findById(leagueId);
+      if (!league) {
+        return res.status(404).json({ message: 'League not found.' });
+      }
+  
+      // Remove userId from league's userId array
+      if (Array.isArray(league.userId)) {
+        league.userId = league.userId.filter(id => id.toString() !== userId.toString());
+      }
+  
+      // Save the updated league document
+      await league.save();
+  
+      res.status(200).json({
+        message: 'Invitation deleted successfully and user removed from league.',
+        info: result
+      });
     } catch (err) {
-      res.status(404).json({ error: err.message });
+      res.status(500).json({ error: err.message });
     }
   }
+  
 
 }
 

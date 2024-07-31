@@ -20,12 +20,12 @@ const leagueSchema =  mongoose.Schema({
     default:true,
   },
   created: {
-    type: Number,
-    default: true,
+    type: Date,
+    default: Date.now,
   },
   updated: {
-    type: Number,
-    default: true,
+    type: Date,
+    default: Date.now,
   },
   allowInvitation: {
     type: Boolean,
