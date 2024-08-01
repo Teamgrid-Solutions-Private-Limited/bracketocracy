@@ -1,8 +1,11 @@
-const express = require("express");
-const Notification = require("../model/notification");
+ 
+const Notification = require("../model/notificationSchema");
+
+class NotificationController
+{
 
 // Create a notification API endpoint
-const createnotification = async (req, res, next) => {
+static createNotification = async (req, res, next) => {
   try {
     // Check if the request body is empty
 
@@ -42,5 +45,6 @@ const createnotification = async (req, res, next) => {
     res.status(500).json({ message: "Error creating notification" });
   }
 };
+}
 
-module.exports = createnotification;
+module.exports = NotificationController;

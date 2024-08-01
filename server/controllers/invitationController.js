@@ -1,9 +1,9 @@
-const Invite = require('../model/leagueinvitation');
-const League = require('../model/leagues');
+const Invite = require('../model/leagueInvitationSchema');
+const League = require('../model/leagueSchema');
 const User = require('../model/userSchema');
 
 class InvitationController {
-  static addinvitation = async (req, res) => {
+  static addInvitation = async (req, res) => {
     try {
       const { email } = req.body;
       console.log(email);
@@ -85,7 +85,7 @@ class InvitationController {
 
 
 
-  static showall = async (req, res) => {
+  static showAll = async (req, res) => {
     try {
       // let inviteid = req.params.id;
       const result = await Invite.find();
@@ -117,7 +117,7 @@ class InvitationController {
   //   }
   // }
 
-  static deleteinvite = async (req, res) => {
+  static deleteInvite = async (req, res) => {
     try {
       const inviteId = req.params.id;
   

@@ -1,8 +1,8 @@
-const League = require("../model/leagues");
+const League = require("../model/leagueSchema");
 const User = require('../model/userSchema');
 
 class LeagueController {
-  static addleague = async (req, res) => {
+  static addLeague = async (req, res) => {
     try {
 
       const user = await User.findById(req.body.userId);
@@ -26,7 +26,7 @@ class LeagueController {
 
   }
 
-  static viewall = async (req, res) => {
+  static viewAll = async (req, res) => {
     try {
       const data = await League.find();
       res.status(201).json({ message: "view successful", info: data });
@@ -35,17 +35,17 @@ class LeagueController {
     }
   };
   // search league by id
-  static searchleague = async (req, res) => {
+  static searchLeague = async (req, res) => {
     try {
-      let leagueid = req.params.id;
-      const result = await League.findById(leagueid);
+      let leagueId = req.params.id;
+      const result = await League.findById(leagueId);
       res.status(201).json({ data: result });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   };
   // delete a league by id
-  static leaguedelete = async (req, res) => {
+  static leagueDelete = async (req, res) => {
     try {
       const data = req.params.id;
       const result = await League.findByIdAndDelete(data);

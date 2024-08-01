@@ -9,6 +9,9 @@ const jwt = require("jsonwebtoken");
 const BASE_URL = "http://localhost:6010/";
 const upload_URL = BASE_URL + "my-uploads/";
 
+class UserController
+{
+
 // const adduser = async (req, res) => {
 //   try {
 //     upload.single("profilePhoto")(req, res, async (err) => {
@@ -66,7 +69,7 @@ const upload_URL = BASE_URL + "my-uploads/";
 // here this is the code for only register field to add for signup---
 //required field like only username,firstname,lastname,password
 
-const adduser = async (req, res) => {
+static addUser = async (req, res) => {
   try {
     upload.single("profilePhoto")(req, res, async (err) => {
       if (err) {
@@ -152,7 +155,7 @@ const adduser = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
+static login = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -188,7 +191,7 @@ const login = async (req, res) => {
   }
 };
 
-const getuser = async (req, res) => {
+static getUser = async (req, res) => {
   try {
     const user = await userModel.find().exec();
     res.json(user);
@@ -200,7 +203,7 @@ const getuser = async (req, res) => {
 };
 
 // Get a user by ID
-const getuserById = async (req, res) => {
+static getUserById = async (req, res) => {
   try {
     const id = req.params.id;
     const role = await userModel.findById(id, req.body);
@@ -304,7 +307,7 @@ const getuserById = async (req, res) => {
 //   }
 // };
 
-const updateUser = async (req, res) => {
+static updateUser = async (req, res) => {
   try {
     upload.single("profilePhoto")(req, res, async (err) => {
       if (err) {
@@ -395,7 +398,7 @@ const updateUser = async (req, res) => {
 };
 
 //delete user
-const deleteUser = async (req, res) => {
+static deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
     if (!userId) {
@@ -415,11 +418,15 @@ const deleteUser = async (req, res) => {
       .json({ message: "Error deleting user", error: error.message });
   }
 };
-module.exports = {
-  adduser,
-  login,
-  getuser,
-  getuserById,
-  updateUser,
-  deleteUser,
-};
+
+
+}
+module.exports = UserController;
+// module.exports = {
+//   adduser,
+//   login,
+//   getuser,
+//   getuserById,
+//   updateUser,
+//   deleteUser,
+// };

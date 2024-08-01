@@ -1,14 +1,14 @@
-const season = require("../model/season");
+const season = require("../model/seasonSchema");
 
 class SeasonController {
-  static addseason = async (req, res) => {
+  static addSeason = async (req, res) => {
     try {
       const { year } = req.body;
       if (!year) {
         return res.status(400).json({ error: "year  is required" });
       }
-      const seasondata = new season({ year });
-      const result = await seasondata.save();
+      const seasonData = new season({ year });
+      const result = await seasonData.save();
       res
         .status(201)
         .json({ message: "season created successfully", data: result });
@@ -17,7 +17,7 @@ class SeasonController {
       res.status(404).json({ error: "Internal Server Error" });
     }
   };
-  static viewall = async (req, res) => {
+  static viewAll = async (req, res) => {
     try {
       const data = await season.find();
       res.status(200).json({ message: "view successful", info: data });
@@ -25,17 +25,17 @@ class SeasonController {
       res.status(404).json({ error: err.message });
     }
   };
-  static searchseason = async (req, res) => {
+  static searchSeason = async (req, res) => {
     try {
-      let seasonid = req.params.id;
-      const result = await season.findById(seasonid);
+      let seasonId = req.params.id;
+      const result = await season.findById(seasonId);
       res.status(200).json({ seasondata: result });
     } catch (err) {
       res.status(404).json({ error: err.message });
     }
   };
 
-  static seasondelete = async (req, res) => {
+  static seasonDelete = async (req, res) => {
     try {
       const data = req.params.id;
       const result = await season.findByIdAndDelete(data);
@@ -47,14 +47,14 @@ class SeasonController {
     }
   };
 
-  static updateseason = async (req, res) => {
+  static updateSeason = async (req, res) => {
     try {
-      const seasonid = req.params.id;
+      const seasonId = req.params.id;
       const data = req.body;
-      const seasondata = await season.findById(seasonid);
-      seasondata.year = data.year;
+      const seasonData = await season.findById(seasonId);
+      seasonData.year = data.year;
 
-      const update = await seasondata.save();
+      const update = await seasonData.save();
       res
         .status(200)
         .json({ message: "update done successfully", info: update });

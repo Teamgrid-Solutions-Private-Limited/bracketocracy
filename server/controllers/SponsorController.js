@@ -1,4 +1,4 @@
-const Sponsor = require("../model/sponsor");
+const Sponsor = require("../model/sponsorSchema");
 const upload = require("../middleware/fileUpload");
 
 const BASE_URL = "http://localhost:6010/";
@@ -6,7 +6,7 @@ const upload_URL = BASE_URL + "my-uploads/";
 
 class SponsorController 
 {
-    static addsponsor = async (req, res) => {
+    static addSponsor = async (req, res) => {
         try {
           upload.single("logo")(req, res, async (err) => {
             if (err) {
@@ -45,7 +45,7 @@ class SponsorController
         }
       };
 
-      static deletesponsor = async (req, res) => {
+      static deleteSponsor = async (req, res) => {
         try {
           const sponsorid = req.params.id;
           const result = await Sponsor.findByIdAndDelete(sponsorid);
@@ -56,7 +56,7 @@ class SponsorController
           res.status(404).json({ error: err.message });
         }
       };
-      static displayall(req, res) {
+      static displayAll(req, res) {
         Sponsor.find().then((data) => {
           res.status(200).json({
             message: "sponsor list retrieved successfully!",
@@ -64,7 +64,7 @@ class SponsorController
           });
         });
       }
-      static displaybyId(req, res) {
+      static displayById(req, res) {
         Sponsor.findById({ _id: req.params.id }).then((data) => {
           res.status(200).json({
             message: "sponsor related to id  retrieved successfully!",
@@ -72,15 +72,15 @@ class SponsorController
           });
         });
       }
-      static updatesponsor = async (req, res) => {
+      static updateSponsor = async (req, res) => {
         try {
           const { id } = req.params;
           const update = req.body;
     
           // Find the sponsor by ID and update its data
-          const updatedsponsor = await Sponsor.findByIdAndUpdate(id, { $set: update }, { new: true });
+          const updatedSponsor = await Sponsor.findByIdAndUpdate(id, { $set: update }, { new: true });
     
-          if (!updatedsponsor) {
+          if (!updatedSponsor) {
             res.status(404).json({ error: 'sponsor not found' });
             return;
           }
