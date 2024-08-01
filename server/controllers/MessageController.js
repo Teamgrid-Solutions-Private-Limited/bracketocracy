@@ -1,5 +1,5 @@
-const Message = require('../model/message');
-const League = require('../model/leagues');
+const Message = require('../model/messageSchema');
+const League = require('../model/leagueSchema');
  
 
 class MessageController {

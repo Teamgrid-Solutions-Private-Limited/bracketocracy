@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const roles = require("./roles");
+ 
 
 const userSchema = new mongoose.Schema({
   password: {
@@ -47,4 +47,5 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("users", userSchema);
+const userModel= mongoose.model("users", userSchema);
+ module.exports = userModel;

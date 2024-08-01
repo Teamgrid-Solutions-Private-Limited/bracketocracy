@@ -1,12 +1,12 @@
-const Team = require("../model/teams");
-const mongoose = require("mongoose");
+const Team = require("../model/teamSchema");
+ 
 const upload = require("../middleware/fileUpload");
 
 const BASE_URL = "http://localhost:6010/";
 const upload_URL = BASE_URL + "my-uploads/";
 
 class TeamController {
-  static addteam = async (req, res) => {
+  static addTeam = async (req, res) => {
     try {
       upload.single("logo")(req, res, async (err) => {
         if (err) {
@@ -50,7 +50,7 @@ class TeamController {
     }
   };
 
-  static deleteteam = async (req, res) => {
+  static deleteTeam = async (req, res) => {
     try {
       const teamid = req.params.id;
       const result = await Team.findByIdAndDelete(teamid);
@@ -62,7 +62,7 @@ class TeamController {
     }
   };
 
-  static displayall(req, res) {
+  static displayAll(req, res) {
     Team.find().then((data) => {
       res.status(200).json({
         message: "User list retrieved successfully!",
@@ -70,7 +70,7 @@ class TeamController {
       });
     });
   }
-  static displaybyId(req, res) {
+  static displayById(req, res) {
     Team.findById({ _id: req.params.id }).then((data) => {
       res.status(200).json({
         message: "User related to id  retrieved successfully!",
