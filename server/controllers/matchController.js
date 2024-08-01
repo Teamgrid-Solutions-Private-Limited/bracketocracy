@@ -1,13 +1,15 @@
 // controllers/matchController.js
 
-const Match = require("../model/matches");
-const Team = require("../model/teams");
-const Round = require("../model/rounds");
-const Season = require("../model/season");
-const Zone = require("../model/zones");
+const Match = require("../model/matchSchema");
+const Team = require("../model/teamSchema");
+const Round = require("../model/roundSchema");
+const Season = require("../model/seasonSchema");
+const Zone = require("../model/zoneSchema");
 
+class MatchController
+{
 // Create a new match
-exports.createMatch = async (req, res) => {
+static createMatch = async (req, res) => {
   try {
     // Log the request body
     console.log("Request Body:", req.body);
@@ -104,7 +106,7 @@ exports.createMatch = async (req, res) => {
 };
 
 //Get a single match by ID
-exports.getMatchById = async (req, res) => {
+static getMatchById = async (req, res) => {
   try {
     const match = await Match.findById(req.params.id)
       .populate("teamOneId")
@@ -122,7 +124,7 @@ exports.getMatchById = async (req, res) => {
 };
 
 // Delete a match by ID
-exports.deleteMatch = async (req, res) => {
+static deleteMatch = async (req, res) => {
   try {
     const match = await Match.findByIdAndDelete(req.params.id);
     if (!match) {
@@ -136,7 +138,7 @@ exports.deleteMatch = async (req, res) => {
  
  
 
-exports.updateMatch = async (req, res) => {
+static updateMatch = async (req, res) => {
   try {
     const { id } = req.params;
     const { teamOneId,
@@ -223,5 +225,8 @@ exports.updateMatch = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+}
+module.exports =MatchController;
 
  

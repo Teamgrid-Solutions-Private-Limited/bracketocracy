@@ -1,5 +1,5 @@
-const Round = require("../model/rounds");
-const Season = require("../model/season");
+const Round = require("../model/roundSchema");
+const Season = require("../model/seasonSchema");
 const slugify = require("slugify");
 
 class RoundController {
@@ -69,13 +69,13 @@ class RoundController {
 
   static updateRound = async (req, res) => {
     try {
-      const roundid = req.params.id;
+      const roundId = req.params.id;
       const data = req.body;
-      const rounddata = await Round.findById(roundid);
-      rounddata.name = data.name;
-      rounddata.totalMatch = data.totalMatch;
+      const roundData = await Round.findById(roundId);
+      roundData.name = data.name;
+      roundData.totalMatch = data.totalMatch;
 
-      const update = await rounddata.save();
+      const update = await roundData.save();
       res
         .status(200)
         .json({ message: "update done successfully", info: update });
@@ -100,8 +100,8 @@ class RoundController {
   };
   static searchRoundById = async (req, res) => {
     try {
-      let roundid = req.params.id;
-      const result = await Round.findById(roundid);
+      let roundId = req.params.id;
+      const result = await Round.findById(roundId);
       res.status(200).json({ data: result });
     } catch (err) {
       res.status(404).json({ error: err.message });

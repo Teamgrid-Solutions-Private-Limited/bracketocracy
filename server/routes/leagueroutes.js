@@ -1,13 +1,13 @@
 const express=require('express');
- const  {addleague, viewall, searchleague, leaguedelete,updateLeague} = require('../controllers/LeagueController');
+ const   LC = require('../controllers/LeagueController');
 
 
 const router = express.Router();
-router.post('/create',addleague);
-router.get('/show',viewall);
-router.get('/search/:id',searchleague);
-router.delete('/delete/:id',leaguedelete);
-router.put('/update/:id',updateLeague);
+router.post('/create',LC.addLeague);
+router.get('/show',LC.viewAll);
+router.get('/search/:id',LC.searchLeague);
+router.delete('/delete/:id',LC.leagueDelete);
+router.put('/update/:id',LC.updateLeague);
 
 
 module.exports=router;
