@@ -3,7 +3,7 @@ const Season = require("../model/seasonSchema");
 const slugify = require("slugify");
 
 class RoundController {
-  static addround = async (req, res) => {
+  static addRound = async (req, res) => {
     try {
       const season = Season.findById(req.body.seasonId);
       if (!season) {

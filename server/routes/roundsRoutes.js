@@ -1,6 +1,6 @@
 const express = require("express");
 const {
-  addround,
+  addRound,
   viewRound,
   deleteRound,
   updateRound,
@@ -9,7 +9,7 @@ const {
 
 const router = express.Router();
 
-router.post("/newround", addround);
+router.post("/newround", addRound);
 router.get("/viewround", viewRound);
 router.delete("/delete", deleteRound);
 router.put("/editround/:id", updateRound);
