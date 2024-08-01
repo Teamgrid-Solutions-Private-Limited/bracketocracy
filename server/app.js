@@ -13,6 +13,7 @@ const matchRoute = require("./routes/matchRoutes");
 const zoneRoute = require("./routes/zoneRoutes");
 const messageRoute = require("./routes/messageRoutes");
 const sponsorRoute =require("./routes/sponsorRoutes");
+const socialMediaRoute = require("./routes/socialMediaRoutes");
 const PORT = 6010;
 const app = express();
 
@@ -34,6 +35,7 @@ app.use("/invitation", invitationRoute);
 app.use("/match", matchRoute);
 app.use("/message",messageRoute);
 app.use("/sponsor",sponsorRoute);
+app.use("/socialmedia",socialMediaRoute);
 
 
 app.listen(PORT, () => {
