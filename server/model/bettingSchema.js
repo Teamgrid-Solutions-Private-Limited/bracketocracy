@@ -10,11 +10,12 @@ const bettingSchema = new mongoose.Schema({
     ref: "users",
   },
   selectedWinner: {
-    type: Number,
-    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "teams",
   },
   status: {
     type: Number,
+    default: 0,
   },
   score: {
     type: Number,

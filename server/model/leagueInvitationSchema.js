@@ -1,36 +1,38 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const leagueInvitationSchema = mongoose.Schema({
   email: {
     type: String,
     required: true,
-    
   },
-  userId:{ type: mongoose.Schema.Types.ObjectId, //reference to user collection
+  userId: {
+    type: mongoose.Schema.Types.ObjectId, //reference to user collection
     ref: "users",
-    required: true,                               // the id of the user to be added in the league
+    required: true, // the id of the user to be added in the league
   },
   invitedBy: {
     type: mongoose.Schema.Types.ObjectId, //reference to user collection
-    ref: "users",                         // the id of the user that had invited the user
+    ref: "users", // the id of the user that had invited the user
     required: true,
   },
-  leagueId:{
+  leagueId: {
     type: mongoose.Schema.Types.ObjectId, //reference to league collection
     ref: "leagues",
     required: true,
   },
   status: {
     type: Number,
-    default: true
+    default: true,
   },
   created: {
-     type: Date, 
-     default: Date.now },
-  updated: { 
-    type: Date, 
-    default: Date.now },
+    type: Date,
+    default: Date.now,
+  },
+  updated: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-const model = mongoose.model('leagueinvitations', leagueInvitationSchema);
+const model = mongoose.model("leagueinvitations", leagueInvitationSchema);
 module.exports = model;

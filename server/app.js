@@ -12,8 +12,10 @@ const invitationRoute = require("./routes/invitationRoutes");
 const matchRoute = require("./routes/matchRoutes");
 const zoneRoute = require("./routes/zoneRoutes");
 const messageRoute = require("./routes/messageRoutes");
-const sponsorRoute =require("./routes/sponsorRoutes");
+const sponsorRoute = require("./routes/sponsorRoutes");
 const socialMediaRoute = require("./routes/socialMediaRoutes");
+const bettingRoute = require("./routes/bettingRoutes");
+
 const PORT = 6010;
 const app = express();
 
@@ -22,7 +24,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("./my-upload"));
 
- 
 app.use("/role", roleRoute);
 app.use("/zone", zoneRoute);
 app.use("/user", userRoute);
@@ -33,10 +34,10 @@ app.use("/notification", notificationRoute);
 app.use("/league", leagueRoute);
 app.use("/invitation", invitationRoute);
 app.use("/match", matchRoute);
-app.use("/message",messageRoute);
-app.use("/sponsor",sponsorRoute);
-app.use("/socialmedia",socialMediaRoute);
-
+app.use("/bet", bettingRoute);
+app.use("/message", messageRoute);
+app.use("/sponsor", sponsorRoute);
+app.use("/socialmedia", socialMediaRoute);
 
 app.listen(PORT, () => {
   console.log(`server has started at port ${PORT}`);
