@@ -1,8 +1,7 @@
-const mongoose = require("mongoose");
-const Betting = mongoose.model("Betting");
-const Match = mongoose.model("Match");
-const Team = mongoose.model("Team");
-const Season = mongoose.model("Season");
+const Betting = require("../model/bettingSchema");
+const Match = require("../model/matchSchema");
+const Team = require("../model/teamSchema");
+const Season = require("../model/seasonSchema");
 
 class bettingController {
   static createBetting = async (req, res) => {

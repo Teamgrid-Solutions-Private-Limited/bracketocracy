@@ -1,6 +1,6 @@
-const Invite = require('../model/leagueInvitationSchema');
-const League = require('../model/leagueSchema');
-const User = require('../model/userSchema');
+const Invite = require("../model/leagueInvitationSchema");
+const League = require("../model/leagueSchema");
+const User = require("../model/userSchema");
 
 class InvitationController {
   static addInvitation = async (req, res) => {
@@ -11,12 +11,14 @@ class InvitationController {
       const league = await League.findById(leagueId);
       console.log(league);
       if (!league) {
-        return res.status(404).json({ message: 'League not found.' });
+        return res.status(404).json({ message: "League not found." });
       }
 
       const user = await User.findOne({ email: req.body.email });
       if (!user) {
-        return res.status(404).json({ message: 'No user found with this email.' });
+        return res
+          .status(404)
+          .json({ message: "No user found with this email." });
       }
 
       // Create an invitation
@@ -25,7 +27,6 @@ class InvitationController {
         userId: user.id,
         invitedBy: league.userId[0],
         leagueId,
-
       });
 
       // Save the invitation
@@ -34,8 +35,6 @@ class InvitationController {
         league.userId = [];
       }
 
-
-
       // // Add the userId to league's userId array
 
       league.userId.push(user.id);
@@ -43,18 +42,16 @@ class InvitationController {
       // Save the league
       await league.save();
 
-
-
       res.status(200).json({
-        message: 'Invitation added successfully.',
+        message: "Invitation added successfully.",
         invitationData: savedInvitation,
-        leagueData: league
+        leagueData: league,
       });
     } catch (err) {
       console.error(err.message);
       res.status(500).json({ message: err.message });
     }
-  }
+  };
 
   // try{
   //     const league = await League.findById(req.params.id);
@@ -73,17 +70,11 @@ class InvitationController {
   //   const  result=   await invitation.save();
   // res.status(200).json({message:"sucessfully invitation done",info:result});
 
-
-
-
   // }catch(err)
-  // { 
+  // {
   //     console.log(err);
   //     res.status(500).json({message:err.message});
   // }
-
-
-
 
   static showAll = async (req, res) => {
     try {
@@ -93,7 +84,7 @@ class InvitationController {
     } catch (err) {
       res.status(404).json({ message: err.message });
     }
-  }
+  };
   // static searchleague = async (req, res) => {
   //   try {
   //     let leagueid = req.params.id;
@@ -103,7 +94,6 @@ class InvitationController {
   //     res.status(404).json({ error: err.message });
   //   }
   // };
-
 
   // static deleteinvite = async (req, res) => {
   //   try {
@@ -120,46 +110,49 @@ class InvitationController {
   static deleteInvite = async (req, res) => {
     try {
       const inviteId = req.params.id;
-  
+
       // Find the invitation to get associated leagueId and userId
       const invitation = await Invite.findById(inviteId);
       if (!invitation) {
-        return res.status(404).json({ message: 'Invitation not found.' });
+        return res.status(404).json({ message: "Invitation not found." });
       }
-  
+
       // Get leagueId and userId from the invitation
       const { leagueId, userId } = invitation;
-  
+
       // Delete the invitation
       const result = await Invite.findByIdAndDelete(inviteId);
       if (!result) {
-        return res.status(500).json({ message: 'Failed to delete invitation.' });
+        return res
+          .status(500)
+          .json({ message: "Failed to delete invitation." });
       }
-  
+
       // Find the league
       const league = await League.findById(leagueId);
       if (!league) {
-        return res.status(404).json({ message: 'League not found.' });
+        return res.status(404).json({ message: "League not found." });
       }
-  
+
       // Remove userId from league's userId array
       if (Array.isArray(league.userId)) {
-        league.userId = league.userId.filter(id => id.toString() !== userId.toString());
+        league.userId = league.userId.filter(
+          (id) => id.toString() !== userId.toString()
+        );
       }
-  
+
       // Save the updated league document
       await league.save();
-  
+
       res.status(200).json({
-        message: 'Invitation deleted successfully and user removed from league.',
-        info: result
+        message:
+          "Invitation deleted successfully and user removed from league.",
+        info: result,
       });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-  }
-  
-
+  };
 }
 
 module.exports = InvitationController;

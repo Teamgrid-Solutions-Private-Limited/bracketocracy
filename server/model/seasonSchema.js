@@ -13,5 +13,5 @@ const seasonSchema = new mongoose.Schema({
   updated: { type: Date, default: Date.now },
 });
 
-const seasonModel= mongoose.model("season", seasonSchema);
+const seasonModel = mongoose.model("seasons", seasonSchema);
 module.exports = seasonModel;

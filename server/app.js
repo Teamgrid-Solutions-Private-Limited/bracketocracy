@@ -13,7 +13,10 @@ const matchRoute = require("./routes/matchRoutes");
 const zoneRoute = require("./routes/zoneRoutes");
 const messageRoute = require("./routes/messageRoutes");
 const sponsorRoute = require("./routes/sponsorRoutes");
+const sponsorRoute = require("./routes/sponsorRoutes");
 const socialMediaRoute = require("./routes/socialMediaRoutes");
+const bettingRoute = require("./routes/bettingRoutes");
+
 const countdownRoute = require("./routes/countdownRoutes");
 const PORT = 6010;
 const app = express();
@@ -33,6 +36,7 @@ app.use("/notification", notificationRoute);
 app.use("/league", leagueRoute);
 app.use("/invitation", invitationRoute);
 app.use("/match", matchRoute);
+app.use("/bet", bettingRoute);
 app.use("/message", messageRoute);
 app.use("/sponsor", sponsorRoute);
 app.use("/socialmedia", socialMediaRoute);
