@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const countdownSchema = mongoose.Schema({
-  status: { type: Number },
+  status: { type: Number,default:true },
   note: { type: String },
   date: { type: Date },
   updated: { type: Date, default: Date.now },
