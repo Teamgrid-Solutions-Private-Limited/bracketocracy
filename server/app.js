@@ -13,6 +13,7 @@ const matchRoute = require("./routes/matchRoutes");
 const zoneRoute = require("./routes/zoneRoutes");
 const messageRoute = require("./routes/messageRoutes");
 const sponsorRoute = require("./routes/sponsorRoutes");
+const sponsorRoute = require("./routes/sponsorRoutes");
 const socialMediaRoute = require("./routes/socialMediaRoutes");
 const bettingRoute = require("./routes/bettingRoutes");
 
