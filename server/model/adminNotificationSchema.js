@@ -17,10 +17,14 @@ const adminNotificationSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "users",
-    required: true,
+  // userId: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "users",
+  //   required: true,
+  // },
+  updated: {
+    type: Date,
+    default: Date.now,
   },
 });
 
