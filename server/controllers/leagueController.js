@@ -1,30 +1,30 @@
 const League = require("../model/leagueSchema");
-const User = require('../model/userSchema');
+const User = require("../model/userSchema");
 
 class leagueController {
   static addLeague = async (req, res) => {
-    try {
-
-      const user = await User.findById(req.body.userId);
-      if (!user) {
-        return res.status(404).json({ message: "user  id not found" });
-      }
-      const { title, description, userId } = req.body;
-      if (!title) {
-        res.status(400).json({ error: "title is required" });
-      }
-      if (!description) {
-        res.status(400).json({ error: "description is required" });
-      }
-
-      const league = new League({ title, description, userId });
-      const data = await league.save();
-      res.status(201).json({ message: "league created successfull", info: data });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+    const { title, description, userId } = req.body;
+    if (!title || !description || !userId) {
+      return res.status(400).json({
+        error: "All fields (title, description, userId) are required",
+      });
     }
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
 
-  }
+      const data = await new League({ title, description, userId }).save();
+      res
+        .status(201)
+        .json({ message: "League created successfully", info: data });
+    } catch (err) {
+      res
+        .status(500)
+        .json({ error: "An unexpected error occurred", details: err.message });
+    }
+  };
 
   static viewAll = async (req, res) => {
     try {
@@ -56,7 +56,7 @@ class leagueController {
       res.status(500).json({ error: err.message });
     }
   };
-  // update a league by id 
+  // update a league by id
   // static updateleague = async (req, res) => {
   //   try {
   //     const leagueid = req.params.id;
@@ -64,7 +64,6 @@ class leagueController {
   //     const leaguedata = await League.findById(leagueid);
   //     leaguedata.title = data.title;
   //     leaguedata.description = data.description;
-
 
   //     const update = await leaguedata.save();
   //     res
@@ -81,18 +80,24 @@ class leagueController {
       const update = req.body;
 
       // Find the league by ID and update its data
-      const updatedLeague = await League.findByIdAndUpdate(id, { $set: update }, { new: true });
+      const updatedLeague = await League.findByIdAndUpdate(
+        id,
+        { $set: update },
+        { new: true }
+      );
 
       if (!updatedLeague) {
-        res.status(404).json({ error: 'League not found' });
+        res.status(404).json({ error: "League not found" });
         return;
       }
 
-      res.status(201).json({ message: 'Update done successfully', info: updatedLeague });
+      res
+        .status(201)
+        .json({ message: "Update done successfully", info: updatedLeague });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-  }
+  };
 }
 
 module.exports = leagueController;
