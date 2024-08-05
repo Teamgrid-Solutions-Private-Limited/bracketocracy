@@ -1,7 +1,7 @@
  
 const Notification = require("../model/adminNotificationSchema");
 
-class NotificationController
+class adminNotificationController
 {
 
  
@@ -78,4 +78,4 @@ static updatedNotification = async (req, res) => {
 }
 }
 
-module.exports = NotificationController;
+module.exports = adminNotificationController;

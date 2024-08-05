@@ -2,7 +2,7 @@ const Invite = require("../model/leagueInvitationSchema");
 const League = require("../model/leagueSchema");
 const User = require("../model/userSchema");
 
-class InvitationController {
+class invitationController {
   static addInvitation = async (req, res) => {
     try {
       const { email } = req.body;
@@ -155,4 +155,4 @@ class InvitationController {
   };
 }
 
-module.exports = InvitationController;
+module.exports = invitationController;

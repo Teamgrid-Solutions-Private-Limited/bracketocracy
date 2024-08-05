@@ -2,7 +2,7 @@ const Message = require('../model/messageSchema');
 const League = require('../model/leagueSchema');
  
 
-class MessageController {
+class messageController {
   // Add a new message
   static addMessage = async (req, res) => {
     try {
@@ -92,4 +92,4 @@ class MessageController {
 //   }
 }
 
-module.exports = MessageController;
+module.exports = messageController;

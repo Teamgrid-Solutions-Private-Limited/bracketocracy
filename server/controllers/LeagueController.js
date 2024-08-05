@@ -1,7 +1,7 @@
 const League = require("../model/leagueSchema");
 const User = require('../model/userSchema');
 
-class LeagueController {
+class leagueController {
   static addLeague = async (req, res) => {
     try {
 
@@ -95,4 +95,4 @@ class LeagueController {
   }
 }
 
-module.exports = LeagueController;
+module.exports = leagueController;

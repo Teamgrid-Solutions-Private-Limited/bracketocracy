@@ -6,7 +6,7 @@ const Round = require("../model/roundSchema");
 const Season = require("../model/seasonSchema");
 const Zone = require("../model/zoneSchema");
 
-class MatchController
+class matchController
 {
 // Create a new match
 static createMatch = async (req, res) => {
@@ -227,6 +227,6 @@ static updateMatch = async (req, res) => {
 };
 
 }
-module.exports =MatchController;
+module.exports =matchController;
 
  

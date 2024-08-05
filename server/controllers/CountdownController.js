@@ -1,6 +1,6 @@
 const Count = require("../model/countdownSchema");
 
-class CountdownController {
+class countdownController {
 
     static addCountdown = async (req, res) => {
         try {
@@ -64,4 +64,4 @@ class CountdownController {
         }
     }
 }
-module.exports = CountdownController;
+module.exports = countdownController;

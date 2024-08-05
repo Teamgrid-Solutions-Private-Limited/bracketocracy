@@ -1,7 +1,7 @@
  
 const Notification = require("../model/notificationSchema");
 
-class NotificationController
+class notificationController
 {
 
 // Create a notification API endpoint
@@ -47,4 +47,4 @@ static createNotification = async (req, res, next) => {
 };
 }
 
-module.exports = NotificationController;
+module.exports = notificationController;
