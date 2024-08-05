@@ -13,13 +13,8 @@ const matchSchema = mongoose.Schema({
   },
   teamOneScore: {
     type: Number,
-    
   },
   teamTwoScore: {
-    type: Number,
-     
-  },
-  finalscore: {
     type: Number,
   },
   decidedWinner: {
@@ -27,7 +22,7 @@ const matchSchema = mongoose.Schema({
     ref: "teams",
     required: true,
   },
-  status:{type:Number},
+  status: { type: Number },
   roundSlug: {
     type: String,
   },

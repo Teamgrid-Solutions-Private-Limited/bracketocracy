@@ -34,7 +34,7 @@ class leagueController {
       res.status(500).json({ error: err.message });
     }
   };
-  // search league by id
+
   static searchLeague = async (req, res) => {
     try {
       let leagueId = req.params.id;
@@ -44,7 +44,7 @@ class leagueController {
       res.status(500).json({ error: err.message });
     }
   };
-  // delete a league by id
+
   static leagueDelete = async (req, res) => {
     try {
       const data = req.params.id;
@@ -56,23 +56,6 @@ class leagueController {
       res.status(500).json({ error: err.message });
     }
   };
-  // update a league by id
-  // static updateleague = async (req, res) => {
-  //   try {
-  //     const leagueid = req.params.id;
-  //     const data = req.body;
-  //     const leaguedata = await League.findById(leagueid);
-  //     leaguedata.title = data.title;
-  //     leaguedata.description = data.description;
-
-  //     const update = await leaguedata.save();
-  //     res
-  //       .status(200)
-  //       .json({ message: "update done successfully", info: update });
-  //   } catch (err) {
-  //     res.status(404).json({ error: err.message });
-  //   }
-  // };
 
   static updateLeague = async (req, res) => {
     try {
