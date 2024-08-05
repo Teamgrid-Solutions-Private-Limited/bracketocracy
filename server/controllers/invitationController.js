@@ -6,10 +6,10 @@ class invitationController {
   static addInvitation = async (req, res) => {
     try {
       const { email } = req.body;
-      console.log(email);
+       
       const { leagueId } = req.params; // Assuming leagueId is in params
       const league = await League.findById(leagueId);
-      console.log(league);
+       
       if (!league) {
         return res.status(404).json({ message: "League not found." });
       }
@@ -53,28 +53,6 @@ class invitationController {
     }
   };
 
-  // try{
-  //     const league = await League.findById(req.params.id);
-  //     const  user = await User.findOne({email:req.body.email});
-  //     if(!user)
-  //     {
-  //         res.status(404).json({message:"user not find"});
-  //     }
-  //     const invitation = new Invite({
-  //         email: req.body.email,
-  //         userId: req.body.userId,
-  //         invitedBy: req.body.invitedBy, // Assuming req.user is the authenticated user
-  //         leagueId: league.id
-  //         // status: 0 // Pending invitation
-  //       });
-  //   const  result=   await invitation.save();
-  // res.status(200).json({message:"sucessfully invitation done",info:result});
-
-  // }catch(err)
-  // {
-  //     console.log(err);
-  //     res.status(500).json({message:err.message});
-  // }
 
   static showAll = async (req, res) => {
     try {
