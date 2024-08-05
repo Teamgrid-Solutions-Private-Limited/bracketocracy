@@ -13,7 +13,6 @@ const matchRoute = require("./routes/matchRoutes");
 const zoneRoute = require("./routes/zoneRoutes");
 const messageRoute = require("./routes/messageRoutes");
 const sponsorRoute = require("./routes/sponsorRoutes");
-const sponsorRoute = require("./routes/sponsorRoutes");
 const socialMediaRoute = require("./routes/socialMediaRoutes");
 const bettingRoute = require("./routes/bettingRoutes");
 
@@ -41,8 +40,8 @@ app.use("/bet", bettingRoute);
 app.use("/message", messageRoute);
 app.use("/sponsor", sponsorRoute);
 app.use("/socialmedia", socialMediaRoute);
-app.use("/countdown",countdownRoute);
-app.use("/adminnotification",adminNotificationRoute);
+app.use("/countdown", countdownRoute);
+app.use("/adminnotification", adminNotificationRoute);
 
 app.listen(PORT, () => {
   console.log(`server has started at port ${PORT}`);
