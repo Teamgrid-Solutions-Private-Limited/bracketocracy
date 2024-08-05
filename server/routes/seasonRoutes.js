@@ -1,6 +1,6 @@
 // season routes.js
 const express = require("express");
-const SC = require("../controllers/SeasonController");
+const SC = require("../controllers/seasonController");
 const router = express.Router();
 
 router.post("/newseason", SC.addSeason);

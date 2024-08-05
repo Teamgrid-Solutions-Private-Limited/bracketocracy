@@ -6,7 +6,7 @@ const {
   deleteTeam,
   updateTeam,
   displayById,
-} = require("../controllers/TeamController");
+} = require("../controllers/teamController");
 const router = express.Router();
 
 router.post("/createteam", addTeam);

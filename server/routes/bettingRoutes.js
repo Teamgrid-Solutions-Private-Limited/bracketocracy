@@ -5,7 +5,7 @@ const {
   updateBetting,
   getAllBetting,
   deleteBetting,
-} = require("../controllers/BettingController");
+} = require("../controllers/bettingController");
 
 const router = express.Router();
 router.post("/create", createBetting);

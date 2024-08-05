@@ -7,7 +7,7 @@ const {
   updateZone,
   searchZone,
   searchZoneBySlug,
-} = require("../controllers/ZoneController");
+} = require("../controllers/zoneController");
 const router = express.Router();
 
 router.post("/newzone", addZone);

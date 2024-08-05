@@ -1,5 +1,5 @@
 const express=require('express');
-const { updateCount, countDelete, searchById, viewAll, addCountdown } = require('../controllers/CountdownController');
+const { updateCount, countDelete, searchById, viewAll, addCountdown } = require('../controllers/countdownController');
  
 
 

@@ -11,9 +11,11 @@ const roundSchema = mongoose.Schema({
   },
   playDate: {
     type: String,
+    required: true,
   },
   biddingEndDate: {
     type: String,
+    require: true,
   },
   status: {
     type: Boolean,

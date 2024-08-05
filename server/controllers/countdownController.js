@@ -4,16 +4,15 @@ class countdownController {
 
     static addCountdown = async (req, res) => {
         try {
-            const { note, date } = req.body;
-            const count = new Count({ note, date });
-            const data = await count.save();
-
-            res.status(201).json({ message: "countdown created successfully", info: data });
-
+          const { note, date } = req.body;
+          const data = await Count.create({ note, date });
+      
+          res.status(201).json({ message: "Countdown created successfully", info: data });
         } catch (err) {
-            res.status(404).json({ error: err.message });
+          console.error("Error creating countdown:", err);
+          res.status(500).json({ error: "Failed to create countdown" });
         }
-    }
+      };
     static countDelete = async (req, res) => {
         try {
             const countId = req.params.id;
