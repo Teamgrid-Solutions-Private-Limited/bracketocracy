@@ -1,5 +1,5 @@
 const express=require('express');
- const   LC = require('../controllers/LeagueController');
+ const   LC = require('../controllers/leagueController');
 
 
 const router = express.Router();

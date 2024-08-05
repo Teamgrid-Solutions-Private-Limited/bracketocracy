@@ -5,7 +5,7 @@ const {
   deleteRound,
   updateRound,
   searchRoundBySlug,
-} = require("../controllers/RoundController");
+} = require("../controllers/roundController");
 
 const router = express.Router();
 

@@ -7,7 +7,7 @@ const {
   getUserById,
   deleteUser,
   updateUser,
-} = require("../controllers/UserController");
+} = require("../controllers/userController");
 const checkUser = require("../middleware/checkUser");
 
 Router.post("/adduser", addUser);

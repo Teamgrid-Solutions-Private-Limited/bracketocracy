@@ -5,7 +5,7 @@ const {
   getMatchById,
   updateMatch,
   deleteMatch,
-} = require("../controllers/MatchController");
+} = require("../controllers/matchController");
 
 const router = express.Router();
 router.post("/create", createMatch);

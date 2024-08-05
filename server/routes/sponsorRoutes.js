@@ -1,5 +1,5 @@
 const express = require('express');
-const { addSponsor, deleteSponsor, updateSponsor, displayById, displayAll } = require('../controllers/SponsorController');
+const { addSponsor, deleteSponsor, updateSponsor, displayById, displayAll } = require('../controllers/sponsorController');
 
 const router = express.Router();
 router.post('/add', addSponsor);

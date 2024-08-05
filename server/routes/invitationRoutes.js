@@ -1,5 +1,5 @@
 const express = require("express");
-const IC = require("../controllers/InvitationController");
+const IC = require("../controllers/invitationController");
 
 const Router = express.Router();
 

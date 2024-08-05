@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
  
-const {addSocial, showAll, socialDelete, updateSocial, searchSocial} = require('../controllers/SocialmediaController');
+const {addSocial, showAll, socialDelete, updateSocial, searchSocial} = require('../controllers/socialmediaController');
 
 
 
