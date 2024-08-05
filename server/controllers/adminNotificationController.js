@@ -4,39 +4,28 @@ const Notification = require("../model/adminNotificationSchema");
 class adminNotificationController
 {
 
+    static createNotification = async (req, res) => {
+        try {
+          const { notificationTitle, notificationText } = req.body;
+      
+          if (!notificationTitle || !notificationText) {
+            return res.status(400).json({
+              message: "Missing required fields: notificationTitle and/or notificationText",
+            });
+          }
+      
+          const notification = await Notification.create(req.body);
+      
+          res.status(201).json({
+            message: "Notification created successfully",
+            result: notification,
+          });
+        } catch (err) {
+          console.error("Error creating notification:", err);
+          res.status(500).json({ message: "Error creating notification" });
+        }
+      };
  
-static createNotification = async (req, res, next) => {
-  try {
-    // Check if the request body is empty
-
-    // Check if the required fields are present
-    const { notificationTitle, notificationText} = req.body;
-
-   
-    if (!notificationTitle) {
-      return res
-        .status(400)
-        .json({ message: "Missing required field:notificationTitle " });
-    }
-    if (!notificationText) {
-      return res
-        .status(400)
-        .json({ message: "Missing required field: notificationText" });
-    }
-     
-    // Create a new notification
-    const notification = new Notification(req.body);
-    const result = await notification.save();
-
-    // Return a success response
-    res
-      .status(201)
-      .json({ message: "Notification created successfully", result });
-  } catch (err) {
-    console.error("Error in addnotification function:", err);
-    res.status(500).json({ message: "Error creating notification" });
-  }
-};
 static notificationDelete =async(req,res)=>{
     try{
         const countId= req.params.id;
