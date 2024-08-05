@@ -30,7 +30,7 @@ class messageController {
         leagueId,
         userId,
         message,
-        // status: 1 // Assuming status 1 means 'sent'
+        status: 1 // Assuming status 1 means 'sent'
       });
 
       // Save the message
