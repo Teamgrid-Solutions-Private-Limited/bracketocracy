@@ -1,11 +1,11 @@
 const Team = require("../model/teamSchema");
- 
+
 const upload = require("../middleware/fileUpload");
 
 const BASE_URL = "http://localhost:6010/";
 const upload_URL = BASE_URL + "my-uploads/";
 
-class TeamController {
+class teamController {
   static addTeam = async (req, res) => {
     try {
       upload.single("logo")(req, res, async (err) => {
@@ -130,4 +130,4 @@ class TeamController {
   };
 }
 
-module.exports = TeamController;
+module.exports = teamController;

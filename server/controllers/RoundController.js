@@ -2,7 +2,7 @@ const Round = require("../model/roundSchema");
 const Season = require("../model/seasonSchema");
 const slugify = require("slugify");
 
-class RoundController {
+class roundController {
   static addRound = async (req, res) => {
     try {
       const season = Season.findById(req.body.seasonId);
@@ -109,4 +109,4 @@ class RoundController {
   };
 }
 
-module.exports = RoundController;
+module.exports = roundController;

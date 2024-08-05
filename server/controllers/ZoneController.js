@@ -3,7 +3,7 @@ const Zone = require("../model/zoneSchema");
 
 const slugify = require("slugify");
 
-class ZoneController {
+class zoneController {
   static addZone = async (req, res) => {
     try {
       const { zoneName } = req.body;
@@ -87,4 +87,4 @@ class ZoneController {
   };
 }
 
-module.exports = ZoneController;
+module.exports = zoneController;

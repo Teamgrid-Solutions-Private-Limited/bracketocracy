@@ -1,6 +1,6 @@
 const season = require("../model/seasonSchema");
 
-class SeasonController {
+class seasonController {
   static addSeason = async (req, res) => {
     try {
       const { year } = req.body;
@@ -64,4 +64,4 @@ class SeasonController {
   };
 }
 
-module.exports = SeasonController;
+module.exports = seasonController;
