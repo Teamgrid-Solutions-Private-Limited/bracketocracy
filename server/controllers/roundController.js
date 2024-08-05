@@ -3,37 +3,54 @@ const Season = require("../model/seasonSchema");
 const slugify = require("slugify");
 
 class roundController {
+  
   static addRound = async (req, res) => {
     try {
-      const season = Season.findById(req.body.seasonId);
-      if (!season) {
-        return res.status(404).json({ message: "season id not found" });
+      const { name, playDate, biddingEndDate, totalMatch, seasonId } = req.body;
+
+      // Validate required fields
+      if (!name || !playDate || !biddingEndDate || !totalMatch || !seasonId) {
+        return res.status(400).json({ error: "All fields are required" });
       }
 
-      const { name, playDate, biddingEndDate, totalMatch, seasonId } = req.body;
-      if (!name) {
-        console.log(name);
-        return res.status(400).json({ error: "Name  is required" });
+      // Validate date fields
+      const now = new Date();
+      const playDateObj = new Date(playDate);
+      const biddingEndDateObj = new Date(biddingEndDate);
+
+      if (playDateObj < now || biddingEndDateObj < now) {
+        return res.status(400).json({ error: "Play date and bidding end date must be in the future" });
       }
-      const slug = slugify(name);
+
+      // Validate totalMatch
+      if (totalMatch <= 0) {
+        return res.status(400).json({ error: "Total match must be greater than 0" });
+      }
+
+      // Check if season exists
+      const season = await Season.findById(seasonId);
+      if (!season) {
+        return res.status(404).json({ message: "Season not found" });
+      }
+
+      // Create and save the round
+      const slug = slugify(name, { lower: true });
       const round = new Round({
         name,
         slug,
-        playDate,
-        biddingEndDate,
+        playDate: playDateObj,
+        biddingEndDate: biddingEndDateObj,
         totalMatch,
         seasonId,
       });
+
       const result = await round.save();
-      res
-        .status(201)
-        .json({ message: "Zone created successfully", data: result });
+      return res.status(201).json({ message: "Round created successfully", data: result });
     } catch (error) {
       console.error(error);
-      res.status(404).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" });
     }
-  };
-  //get all round------------
+  }
   static viewRound = async (req, res) => {
     try {
       const roundList = await Round.find().exec();
