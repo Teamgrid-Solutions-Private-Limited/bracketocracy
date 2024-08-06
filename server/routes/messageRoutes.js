@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const MC = require('../controllers/messageController');
+const checkUser = require('../middleware/checkUser');
 
  
 
 // Route to add a new message
-router.post('/leagues/:leagueId/messages', MC.addMessage);
+router.post('/leagues/:leagueId/messages',checkUser, MC.addMessage);
 
 // Route to get all messages for a league
 router.get('/leagues/:leagueId/messages', MC.showAllMessages);

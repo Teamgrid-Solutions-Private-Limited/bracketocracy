@@ -1,8 +1,7 @@
 const mongoose = require("mongoose");
 
 // Connection URI
-const uri =
-  "mongodb+srv://sksarukali:KRet1aKFEBLDDiwU@cluster0.i4aiegf.mongodb.net/mydatabase";
+const uri =process.env.MONGODB_URI;
 
 const DB = mongoose.connect(uri);
 DB.then(() => {
