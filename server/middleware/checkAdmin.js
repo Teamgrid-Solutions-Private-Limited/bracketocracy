@@ -3,7 +3,7 @@
 const jwt = require("jsonwebtoken");
 const checkAdmin = (req, res, next) => {
   try {
-    var decoded = jwt.verify(req.headers.token, "mySecret");
+    var decoded = jwt.verify(req.headers.token, "secret");
     //console.log(decoded.isAdmin);
     //console.log(req.headers.token);
     //return decoded.isAdmin;

@@ -1,5 +1,7 @@
+require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
+
 const connection = require("./db/connection");
 const roleRoute = require("./routes/roleRoutes");
 const userRoute = require("./routes/userRoutes");
@@ -18,7 +20,7 @@ const bettingRoute = require("./routes/bettingRoutes");
 
 const countdownRoute = require("./routes/countdownRoutes");
 const adminNotificationRoute = require("./routes/adminNotificationRoutes");
-const PORT = 6010;
+const PORT = process.env.PORT ||6010;
 const app = express();
 
 app.use(cors());
