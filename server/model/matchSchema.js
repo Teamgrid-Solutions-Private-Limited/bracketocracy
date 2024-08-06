@@ -20,9 +20,9 @@ const matchSchema = mongoose.Schema({
   decidedWinner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "teams",
-    required: true,
+     
   },
-  status: { type: Number },
+  status: { type: Number ,default:true},
   roundSlug: {
     type: String,
   },
