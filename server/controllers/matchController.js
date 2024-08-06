@@ -7,7 +7,6 @@ const Season = require("../model/seasonSchema");
 const Zone = require("../model/zoneSchema");
 
 class matchController {
-  // Create a new match
   // static createMatch = async (req, res) => {
   //   try {
   //     // Log the request body
