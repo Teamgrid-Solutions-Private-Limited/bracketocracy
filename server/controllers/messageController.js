@@ -8,23 +8,23 @@ class messageController {
       const { leagueId } = req.params;
       const { message } = req.body;
       const userId = req.user.userId; // Get userId from the token
-  
+
       // Validate required fields
       if (!leagueId || !message) {
         return res.status(400).json({ error: "League ID and message are required" });
       }
-  
+
       // Find the league
       const league = await League.findById(leagueId);
       if (!league) {
         return res.status(404).json({ message: 'League not found.' });
       }
-  
+
       // Check if the user is part of the league
       if (!Array.isArray(league.userIds) || !league.userIds.includes(userId)) {
         return res.status(403).json({ message: 'User is not a member of this league.' });
       }
-  
+
       // Create a new message
       const newMessage = new Message({
         leagueId,
@@ -32,10 +32,10 @@ class messageController {
         message,
         status: 1 // Assuming status 1 means 'sent'
       });
-  
+
       // Save the message
       const savedMessage = await newMessage.save();
-  
+
       res.status(201).json({
         message: 'Message sent successfully.',
         data: savedMessage
@@ -45,11 +45,11 @@ class messageController {
       res.status(500).json({ message: 'An error occurred while sending the message.' });
     }
   }
-  
- 
-  
-  
-   
+
+
+
+
+
 
   // Show all messages for a league
   static showAllMessages = async (req, res) => {
