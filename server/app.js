@@ -29,8 +29,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("./my-upload"));
 
 app.use("/role", roleRoute);
-app.use("/zone", zoneRoute);
 app.use("/user", userRoute);
+app.use("/zone", zoneRoute);
 app.use("/season", seasonRoute);
 app.use("/round", roundRoute);
 app.use("/team", teamRoute);

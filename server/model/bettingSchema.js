@@ -11,7 +11,7 @@ const bettingSchema = new mongoose.Schema({
   },
   selectedWinner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "teams",
+    ref: "matches",
   },
   status: {
     type: Number,
