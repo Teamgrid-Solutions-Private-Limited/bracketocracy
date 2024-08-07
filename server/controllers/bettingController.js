@@ -12,7 +12,7 @@ class bettingController {
       const { matchId, selectedWinner, score, seasonId, userId } = req.body;
   
       // Validate that fields are present
-      if (!matchId || !selectedWinner || score === undefined || !seasonId) {
+      if (!matchId || !selectedWinner || !score === undefined || !seasonId) {
         return res.status(400).json({ message: "All fields are required" });
       }
   
@@ -56,31 +56,28 @@ class bettingController {
   static calculatePoints = async (roundSlug, selectedWinner) => {
     try {
       if (!selectedWinner) {
-        
-        res.status(404).json({ message:"Selected winner ID is null or undefined"});
+        console.error("Selected winner ID is null or undefined");
         return 0;
       }
   
       const team = await Team.findById(selectedWinner).exec();
-       
+  
       if (!team) {
-        
-        res.status(404).json({ message:"Team not found",selectedWinner});
+        console.error("Team not found", selectedWinner);
         return 0;
       }
   
       const seedValue = team.seed || 0; // Get seed value from the team
   
       const round = await Round.findOne({ slug: roundSlug }).exec();
-     
+  
       if (!round) {
-        
-        res.status(404).json({ message:"Round not found"});
+        console.error("Round not found");
         return 0;
       }
   
       let points = 0;
-      
+  
       switch (round.roundNumber) {
         case 0: // Pre-tournament round
           points = 5;
@@ -110,84 +107,86 @@ class bettingController {
   
       return points;
     } catch (error) {
-      
-      res.status(404).json({ message:error.message});
+      console.error("Error calculating points:", error.message);
       return 0;
+    }
+  };
+  static updateBettingResults = async (matchId) => {
+    try {
+      const match = await Match.findById(matchId).populate("decidedWinner").exec();
+  
+      if (!match) {
+        console.error("Match not found");
+        return;
+      }
+  
+      const decidedWinner = match.decidedWinner;
+      const roundSlug = match.roundSlug;
+      console.log(`Match Round Slug: ${roundSlug}`);
+      
+      if (roundSlug === "round6") {
+        console.log("Processing Round 6");
+      }
+  
+      const bets = await Betting.find({ matchId }).populate("userId").populate("selectedWinner").exec();
+      
+      for (const bet of bets) {
+        const { selectedWinner, userId, score } = bet;
+        const user = await User.findById(userId).exec();
+  
+        if (!user) {
+          console.error("User not found for ID:", userId);
+          continue;
+        }
+  
+        if (!selectedWinner) {
+          console.error("Selected winner not found for bet ID:", bet._id);
+          continue;
+        }
+  
+        let updatedScore = score;
+        console.log(`Initial score for bet ID ${bet._id}: ${updatedScore}`);
+  
+        if (roundSlug === "round-6") {
+          // Special case for Round 6: the user bets all their points
+          console.log(`Evaluating Round 6 bet for ID ${bet._id}`);
+          if (selectedWinner && decidedWinner && selectedWinner.toString() === decidedWinner.toString()) {
+            // User wins in Round 6
+            updatedScore = score + score; // Double the score
+            console.log(`User won in Round 6, updated score: ${updatedScore}`);
+          } else {
+            // User loses in Round 6
+            updatedScore = score; // No change in score
+            console.log(`User lost in Round 6, score remains: ${updatedScore}`);
+          }
+        } else {
+          // For other rounds, calculate points and update score
+          const points = await bettingController.calculatePoints(roundSlug, selectedWinner);
+          console.log(`Points calculated for bet ID ${bet._id}: ${points}`);
+          
+          if (selectedWinner && decidedWinner && selectedWinner.toString() === decidedWinner.toString()) {
+            if (points !== null) {
+              updatedScore += points; // Increase score based on points calculated
+              console.log(`User won in round ${roundSlug}, updated score: ${updatedScore}`);
+            }
+          }
+        }
+  
+        // Update the bet with the new score
+        const updatedBet = await Betting.findByIdAndUpdate(bet._id, { score: updatedScore }, { new: true }).exec();
+        if (!updatedBet) {
+          console.error(`Failed to update bet with ID: ${bet._id}`);
+        } else {
+          console.log(`Bet updated with new score: ${updatedScore}`);
+        }
+      }
+    } catch (error) {
+      console.error("Error updating betting results:", error.message);
     }
   };
   
   
-   
- // Update the score based on match outcome
-static updateBettingResults = async (matchId) => {
-  try {
-    const match = await Match.findById(matchId).populate("decidedWinner").exec();
-    
-    if (!match) {
-       
-      res.status(404).json({ message:"Match not found"});
-      return;
-    }
-
-    const decidedWinner = match.decidedWinner;
-    
-    const roundSlug = match.roundSlug; // Assuming the round slug is available in the match
-    const bets = await Betting.find({ matchId }).populate("userId").populate("selectedWinner").exec();
-     
-
-    for (const bet of bets) {
-      const { selectedWinner, userId, score } = bet;
-      const user = await User.findById(userId).exec();
-
-      if (!user) {
-         
-        res.status(404).json({ message:"User not found"});
-        continue;
-      }
-
-      if (!selectedWinner) {
-       
-        res.status(404).json({ message:"Selected winner not found"});
-        continue;
-      }
-
-      let updatedScore = score; // Use the initial score from the bet
-    
-      
-      // Calculate points based on round and selected winner
-      const points = await bettingController.calculatePoints(roundSlug, selectedWinner);
-       
-      
-      if (roundSlug === "round6") {
-        // Special case for Round 6: the user bets all their points
-        if (selectedWinner && decidedWinner && selectedWinner.toString() === decidedWinner.toString()) {
-          // User wins in Round 6
-          updatedScore = score + score; // Double the score (i.e., 10 + 10 = 20)
-        } else {
-          // User loses in Round 6
-          updatedScore = score; // User retains their points (no change in score)
-        }
-      } else if (selectedWinner && decidedWinner && selectedWinner.toString() === decidedWinner.toString()) {
-        // User wins in other rounds
-        if (points !== null) {
-          updatedScore += points; // Increase score based on points calculated
-        }
-      } 
-      // else {
-      //   // User loses in other rounds
-      //   // No change in score if user loses
-      //   // updatedScore remains the same
-      // }
-      
-      // Update the bet with the new score
-      await Betting.findByIdAndUpdate(bet._id, { score: updatedScore }, { new: true }).exec();
-      
-    }
-  } catch (error) {
-   
-    res.status(404).json({ message:"Error updating betting results",error:error.message});
-  }
-};
+  
   // Handle end of match
   static handleMatchEnd = async (req, res) => {
     try {
