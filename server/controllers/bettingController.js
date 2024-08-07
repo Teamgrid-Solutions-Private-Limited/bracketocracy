@@ -2,70 +2,57 @@ const Betting = require("../model/bettingSchema");
 const Match = require("../model/matchSchema");
 const Team = require("../model/teamSchema");
 const Season = require("../model/seasonSchema");
-
+const jwt = require("jsonwebtoken");
+const User = require("../model/userSchema");
 class bettingController {
-  static createBetting = async (req, res) => {
+  // Score update job
+  static updateScoreJob = async (
+    bettingId,
+    matchId,
+    seasonId,
+    selectedWinner
+  ) => {
     try {
-      const { matchId, userId, selectedWinner, seasonId, score, status } =
-        req.body;
-
-      // Validate required fields
-      if (!matchId || !userId || !selectedWinner || !seasonId) {
-        return res
-          .status(400)
-          .json({ error: "Please provide all required fields" });
+      // Retrieve betting document
+      const betting = await Betting.findById(bettingId);
+      if (!betting) {
+        console.error(`Betting document not found: ${bettingId}`);
+        return;
       }
 
-      // Check if match exists
-      const match = await Match.findById(matchId);
-      if (!match) {
-        return res.status(404).json({ error: "Match not found" });
+      // Calculate score based on round and selected winner
+      let score;
+      const round = await determineCurrentRound(matchId, seasonId);
+      if (round === 0) {
+        score = 5; // play-in round
+      } else if (round === 1) {
+        score = getSeedValue(match, selectedWinner); // round 1
+      } else if (round === 2) {
+        score = getSeedValue(match, selectedWinner) * 2; // round 2
+      } else if (round === 3) {
+        score = getSeedValue(match, selectedWinner) * 3; // round 3
+      } else if (round === 4) {
+        score = 25; // round 4
+      } else if (round === 5) {
+        score = 50; // round 5
+      } else if (round === 6) {
+        // round 6, bet all points (not implemented yet)
+        score = 0;
       }
 
-      // Check if team exists
-      const team = await Team.findById(selectedWinner);
-      if (!team) {
-        return res.status(404).json({ error: "Team not found" });
-      }
-
-      // Check if season exists
-      const season = await Season.findById(seasonId);
-      if (!season) {
-        return res.status(404).json({ error: "Season not found" });
-      }
-
-      // Check if match is part of the season
-      if (!match.seasonId.equals(seasonId)) {
-        return res
-          .status(400)
-          .json({ error: "Match is not part of the season" });
-      }
-
-      // Create new betting document
-      const betting = new Betting({
-        matchId,
-        userId,
-        selectedWinner,
-        seasonId,
-        score: score || 0, // default score to 0 if not provided
-        status: status || 0, // default status to 0 if not provided
-      });
-
-      // Validate betting document
-      const error = betting.validateSync();
-      if (error) {
-        return res.status(400).json({ error: "Invalid betting data" });
-      }
-
-      // Save betting document
+      // Update betting document with calculated score
+      betting.score = score;
       await betting.save();
 
-      res.json({ message: "Betting created successfully" });
+      // Update user's points balance
+      const user = await User.findById(betting.userId);
+      user.pointsBalance += score;
+      await user.save();
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: "Internal Server Error" });
     }
   };
+
   static updateBetting = async (req, res) => {
     try {
       const id = req.params.id;

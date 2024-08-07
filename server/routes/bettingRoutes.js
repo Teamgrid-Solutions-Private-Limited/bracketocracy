@@ -8,7 +8,7 @@ const {
 } = require("../controllers/bettingController");
 
 const router = express.Router();
-router.post("/create", createBetting);
+//router.post("/create", createBetting);
 router.get("/search", getAllBetting);
 router.get("/search/:id", getAllBettingById);
 router.delete("/delete/:id", deleteBetting);
