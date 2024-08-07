@@ -47,8 +47,8 @@ class bettingController {
       // Respond with the saved bet
       res.status(201).json({ message: "Bet placed successfully", savedBet });
     } catch (error) {
-      console.error("Error placing bet:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      
+      res.status(500).json({ error:error.message});
     }
   };
   
@@ -56,29 +56,31 @@ class bettingController {
   static calculatePoints = async (roundSlug, selectedWinner) => {
     try {
       if (!selectedWinner) {
-        console.error("Selected winner ID is null or undefined");
+        
+        res.status(404).json({ message:"Selected winner ID is null or undefined"});
         return 0;
       }
   
       const team = await Team.findById(selectedWinner).exec();
-      console.log(team);
+       
       if (!team) {
-        console.error("Team not found:", selectedWinner);
+        
+        res.status(404).json({ message:"Team not found",selectedWinner});
         return 0;
       }
   
       const seedValue = team.seed || 0; // Get seed value from the team
   
       const round = await Round.findOne({ slug: roundSlug }).exec();
-      console.log(round);
+     
       if (!round) {
-        console.error("Round not found:", roundSlug);
+        
+        res.status(404).json({ message:"Round not found"});
         return 0;
       }
   
       let points = 0;
-      console.log(round.roundNumber);
-  
+      
       switch (round.roundNumber) {
         case 0: // Pre-tournament round
           points = 5;
@@ -108,7 +110,8 @@ class bettingController {
   
       return points;
     } catch (error) {
-      console.error("Error calculating points:", error);
+      
+      res.status(404).json({ message:error.message});
       return 0;
     }
   };
@@ -119,14 +122,15 @@ class bettingController {
 static updateBettingResults = async (matchId) => {
   try {
     const match = await Match.findById(matchId).populate("decidedWinner").exec();
-    console.log(match);
+    
     if (!match) {
-      console.error("Match not found:", matchId);
+       
+      res.status(404).json({ message:"Match not found"});
       return;
     }
 
     const decidedWinner = match.decidedWinner;
-    console.log(decidedWinner);
+    
     const roundSlug = match.roundSlug; // Assuming the round slug is available in the match
     const bets = await Betting.find({ matchId }).populate("userId").populate("selectedWinner").exec();
     console.log(bets);
@@ -136,21 +140,23 @@ static updateBettingResults = async (matchId) => {
       const user = await User.findById(userId).exec();
 
       if (!user) {
-        console.error("User not found:", userId);
+         
+        res.status(404).json({ message:"User not found"});
         continue;
       }
 
       if (!selectedWinner) {
-        console.error("Selected winner not found in bet:", bet);
+       
+        res.status(404).json({ message:"Selected winner not found"});
         continue;
       }
 
       let updatedScore = score; // Use the initial score from the bet
-      console.log(updatedScore);
+    
       
       // Calculate points based on round and selected winner
       const points = await bettingController.calculatePoints(roundSlug, selectedWinner);
-      console.log(points);
+       
       
       if (roundSlug === "round6") {
         // Special case for Round 6: the user bets all their points
@@ -178,7 +184,8 @@ static updateBettingResults = async (matchId) => {
       
     }
   } catch (error) {
-    console.error("Error updating betting results:", error);
+   
+    res.status(404).json({ message:"Error updating betting results",error:error.message});
   }
 };
   // Handle end of match
@@ -193,7 +200,7 @@ static updateBettingResults = async (matchId) => {
       await bettingController.updateBettingResults(matchId);
       res.status(200).json({ message: "Betting results updated successfully" });
     } catch (error) {
-      console.error("Error handling match end:", error);
+      
       res.status(500).json({ error: "Internal Server Error" });
     }
   };
@@ -209,8 +216,8 @@ static updateBettingResults = async (matchId) => {
 
       res.status(200).json(bets);
     } catch (error) {
-      console.error("Error fetching user bets:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+       
+      res.status(500).json({ error:error.message });
     }
   };
 }
