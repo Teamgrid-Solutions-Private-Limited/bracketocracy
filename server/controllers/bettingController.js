@@ -133,7 +133,7 @@ static updateBettingResults = async (matchId) => {
     
     const roundSlug = match.roundSlug; // Assuming the round slug is available in the match
     const bets = await Betting.find({ matchId }).populate("userId").populate("selectedWinner").exec();
-    console.log(bets);
+     
 
     for (const bet of bets) {
       const { selectedWinner, userId, score } = bet;
