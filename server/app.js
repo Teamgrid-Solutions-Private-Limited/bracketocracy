@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
@@ -17,10 +17,11 @@ const messageRoute = require("./routes/messageRoutes");
 const sponsorRoute = require("./routes/sponsorRoutes");
 const socialMediaRoute = require("./routes/socialMediaRoutes");
 const bettingRoute = require("./routes/bettingRoutes");
-
 const countdownRoute = require("./routes/countdownRoutes");
 const adminNotificationRoute = require("./routes/adminNotificationRoutes");
-const PORT = process.env.PORT ||6010;
+const settingRoute = require("./routes/settingRoutes");
+
+const PORT = process.env.PORT || 6010;
 const app = express();
 
 app.use(cors());
@@ -44,6 +45,7 @@ app.use("/sponsor", sponsorRoute);
 app.use("/socialmedia", socialMediaRoute);
 app.use("/countdown", countdownRoute);
 app.use("/adminnotification", adminNotificationRoute);
+app.use("/setting", settingRoute);
 
 app.listen(PORT, () => {
   console.log(`server has started at port ${PORT}`);
