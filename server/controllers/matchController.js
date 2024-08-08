@@ -200,11 +200,15 @@ class matchController {
   //final score---
   static finalScores = async (req, res) => {
     try {
-      const { matchId, teamOneScore, teamTwoScore } = req.body;
+      const {teamOneScore, teamTwoScore } = req.body;
+      const {id} = req.params;
+      console.log(id);
+      console.log(teamOneScore);
+      console.log(teamTwoScore);
 
       // Validate that IDs and scores are present
       if (
-        !matchId ||
+        !id ||
         teamOneScore === undefined ||
         teamTwoScore === undefined
       ) {
@@ -214,7 +218,7 @@ class matchController {
       }
 
       // Find the match
-      const match = await Match.findById(matchId).exec();
+      const match = await Match.findById(id).exec();
       if (!match) {
         return res.status(404).json({ message: "Match not found" });
       }
@@ -248,7 +252,7 @@ class matchController {
       console.error("Error occurred while updating match:", error);
 
       // Respond with error message
-      res.status(500).json({ error: "Internal Server Error" });
+      res.status(500).json({ error:error.message});
     }
   };
 

@@ -37,6 +37,9 @@ const userSchema = new mongoose.Schema({
   socialMediaId: {
     type: String,
   },
+  score : {
+    type:Number,
+    default:0},
   created: {
     type: Date,
     default: Date.now,

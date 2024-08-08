@@ -17,6 +17,7 @@ const roundSchema = mongoose.Schema({
     type: String,
     require: true,
   },
+  roundNumber:{type:Number,required:true},
   status: {
     type: Boolean,
     default: true,

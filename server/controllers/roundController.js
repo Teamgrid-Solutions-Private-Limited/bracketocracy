@@ -6,17 +6,22 @@ class roundController {
   
   static addRound = async (req, res) => {
     try {
-      const { name, playDate, biddingEndDate, totalMatch, seasonId } = req.body;
+      const { name, playDate, biddingEndDate, totalMatch, seasonId, roundNumber } = req.body;
 
       // Validate required fields
-      if (!name || !playDate || !biddingEndDate || !totalMatch || !seasonId) {
+      if (!name || !playDate || !biddingEndDate || !totalMatch || !seasonId || !roundNumber) {
         return res.status(400).json({ error: "All fields are required" });
       }
 
-      // Validate date fields
+      // Validate and parse date fields
       const now = new Date();
       const playDateObj = new Date(playDate);
       const biddingEndDateObj = new Date(biddingEndDate);
+
+      // Check if dates are valid
+      if (isNaN(playDateObj.getTime()) || isNaN(biddingEndDateObj.getTime())) {
+        return res.status(400).json({ error: "Invalid date format" });
+      }
 
       if (playDateObj < now || biddingEndDateObj < now) {
         return res.status(400).json({ error: "Play date and bidding end date must be in the future" });
@@ -42,6 +47,7 @@ class roundController {
         biddingEndDate: biddingEndDateObj,
         totalMatch,
         seasonId,
+        roundNumber,
       });
 
       const result = await round.save();
