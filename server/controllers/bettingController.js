@@ -1,150 +1,201 @@
 const Betting = require("../model/bettingSchema");
 const Match = require("../model/matchSchema");
-const Team = require("../model/teamSchema");
-const Season = require("../model/seasonSchema");
-const jwt = require("jsonwebtoken");
 const User = require("../model/userSchema");
+const Season = require("../model/seasonSchema");
+const Round = require("../model/roundSchema");
+const Team = require("../model/teamSchema"); // Ensure you have a Team model
+
 class bettingController {
-  // Score update job
-  static updateScoreJob = async (
-    bettingId,
-    matchId,
-    seasonId,
-    selectedWinner
-  ) => {
+  // Place a bet
+  static placeBet = async (req, res) => {
     try {
-      // Retrieve betting document
-      const betting = await Betting.findById(bettingId);
-      if (!betting) {
-        console.error(`Betting document not found: ${bettingId}`);
+      const { matchId, selectedWinner, seasonId, userId } = req.body;
+
+      if (!matchId || !selectedWinner || !seasonId || !userId) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      // Check if a bet already exists for the user and match
+      const existingBet = await Betting.findOne({ matchId, userId }).exec();
+      if (existingBet) {
+        return res
+          .status(400)
+          .json({ message: "Bet already placed for this match" });
+      }
+
+      // Verify references
+      const [match, user, season] = await Promise.all([
+        Match.findById(matchId).exec(),
+        User.findById(userId).exec(),
+        Season.findById(seasonId).exec(),
+      ]);
+
+      if (!match) return res.status(404).json({ message: "Match not found" });
+      if (!user) return res.status(404).json({ message: "User not found" });
+      if (!season) return res.status(404).json({ message: "Season not found" });
+
+      // Retrieve the user's score from the User document
+      const score = user.score;
+
+      const bet = new Betting({
+        matchId,
+        userId,
+        selectedWinner,
+        score,
+        seasonId,
+      });
+      const savedBet = await bet.save();
+
+      res.status(201).json({ message: "Bet placed successfully", savedBet });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+  // Calculate points based on the round and match outcome
+  static calculatePoints = async (roundSlug, selectedWinner) => {
+    try {
+      if (!selectedWinner) return 0;
+
+      const team = await Team.findById(selectedWinner).exec();
+      if (!team) return 0;
+
+      const seedValue = team.seed || 0;
+      const round = await Round.findOne({ slug: roundSlug }).exec();
+      if (!round) return 0;
+
+      let points = 0;
+      switch (round.roundNumber) {
+        case 0:
+          points = 5;
+          break;
+        case 1:
+          points = seedValue;
+          break;
+        case 2:
+          points = seedValue * 2;
+          break;
+        case 3:
+          points = seedValue * 3;
+          break;
+        case 4:
+          points = 25;
+          break;
+        case 5:
+          points = 50;
+          break;
+        case 6:
+          points = 0;
+          break;
+        default:
+          points = 0;
+          break;
+      }
+
+      return points;
+    } catch (error) {
+      console.error("Error calculating points:", error.message);
+      return 0;
+    }
+  };
+
+  static updateBettingResults = async (matchId) => {
+    try {
+      const match = await Match.findById(matchId)
+        .populate("decidedWinner")
+        .exec();
+      if (!match) {
+        console.error("Match not found");
         return;
       }
 
-      // Calculate score based on round and selected winner
-      let score;
-      const round = await determineCurrentRound(matchId, seasonId);
-      if (round === 0) {
-        score = 5; // play-in round
-      } else if (round === 1) {
-        score = getSeedValue(match, selectedWinner); // round 1
-      } else if (round === 2) {
-        score = getSeedValue(match, selectedWinner) * 2; // round 2
-      } else if (round === 3) {
-        score = getSeedValue(match, selectedWinner) * 3; // round 3
-      } else if (round === 4) {
-        score = 25; // round 4
-      } else if (round === 5) {
-        score = 50; // round 5
-      } else if (round === 6) {
-        // round 6, bet all points (not implemented yet)
-        score = 0;
-      }
+      const decidedWinner = match.decidedWinner;
+      const roundSlug = match.roundSlug;
 
-      // Update betting document with calculated score
-      betting.score = score;
-      await betting.save();
+      const bets = await Betting.find({ matchId })
+        .populate("userId")
+        .populate("selectedWinner")
+        .exec();
 
-      // Update user's points balance
-      const user = await User.findById(betting.userId);
-      user.pointsBalance += score;
-      await user.save();
+      await Promise.all(
+        bets.map(async (bet) => {
+          const { selectedWinner, userId, score } = bet;
+          const user = await User.findById(userId).exec();
+
+          if (!user) {
+            console.error("User not found for ID:", userId);
+            return;
+          }
+
+          if (!selectedWinner) {
+            console.error("Selected winner not found for bet ID:", bet._id);
+            return;
+          }
+
+          let updatedScore = score;
+
+          if (roundSlug === "round-6") {
+            if (selectedWinner.toString() === decidedWinner.toString()) {
+              updatedScore = score * 2; // Double the score
+            }
+          } else {
+            const points = await bettingController.calculatePoints(
+              roundSlug,
+              selectedWinner
+            );
+            if (selectedWinner.toString() === decidedWinner.toString()) {
+              updatedScore += points; // Increase score based on points
+            }
+          }
+
+          await Betting.findByIdAndUpdate(
+            bet._id,
+            { score: updatedScore },
+            { new: true }
+          ).exec();
+          await User.findByIdAndUpdate(
+            userId,
+            { score: updatedScore },
+            { new: true }
+          ).exec(); // Update user score
+        })
+      );
     } catch (error) {
-      console.error(error);
+      console.error("Error updating betting results:", error.message);
     }
   };
 
-  static updateBetting = async (req, res) => {
+  // Handle end of match
+  static handleMatchEnd = async (req, res) => {
     try {
-      const id = req.params.id;
-      const { score, status } = req.body;
-
-      // Validate required fields
-      if (!id) {
-        return res.status(400).json({ error: "Please provide the betting ID" });
+      const { matchId } = req.params;
+      if (!matchId) {
+        return res.status(400).json({ message: "Match ID is required" });
       }
 
-      // Check if betting exists
-      const betting = await Betting.findById(id);
-      if (!betting) {
-        return res.status(404).json({ error: "Betting not found" });
-      }
-
-      // Update betting document
-      if (score !== undefined) {
-        betting.score = score;
-      }
-      if (status !== undefined) {
-        betting.status = status;
-      }
-
-      // Validate betting document
-      const error = betting.validateSync();
-      if (error) {
-        return res.status(400).json({ error: "Invalid betting data" });
-      }
-
-      // Save betting document
-      await betting.save();
-
-      res.json({ message: "Betting updated successfully" });
+      await bettingController.updateBettingResults(matchId);
+      res.status(200).json({ message: "Betting results updated successfully" });
     } catch (error) {
-      console.error(error);
       res.status(500).json({ error: "Internal Server Error" });
     }
   };
 
-  static getAllBetting = async (req, res) => {
+  // Get user bets
+  static getUserBets = async (req, res) => {
     try {
-      const bettings = await Betting.find()
-        .populate("matchId", "name")
-        .populate("userId", "username")
-        .populate("selectedWinner", "name")
-        .populate("seasonId", "name");
-      res.json(bettings);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  };
-
-  static getAllBettingById = async (req, res) => {
-    try {
-      const id = req.params.id;
-
-      // Check if betting exists
-      const betting = await Betting.findById(id)
-        .populate("matchId", "name")
-        .populate("userId", "username")
-        .populate("selectedWinner", "name")
-        .populate("seasonId", "name");
-      if (!betting) {
-        return res.status(404).json({ error: "Betting not found" });
+      const { userId } = req.params;
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
       }
 
-      res.json(betting);
+      const bets = await Betting.find({ userId })
+        .populate("matchId")
+        .populate("selectedWinner")
+        .populate("seasonId");
+
+      res.status(200).json(bets);
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  };
-
-  static deleteBetting = async (req, res) => {
-    try {
-      const id = req.params.id;
-
-      // Check if betting exists
-      const betting = await Betting.findById(id);
-      if (!betting) {
-        return res.status(404).json({ error: "Betting not found" });
-      }
-
-      // Delete betting document
-      await betting.remove();
-
-      res.json({ message: "Betting deleted successfully" });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error" });
+      res.status(500).json({ error: error.message });
     }
   };
 }

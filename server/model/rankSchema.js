@@ -7,6 +7,7 @@ const rankSchema = mongoose.Schema({
   },
   rank: {
     type: Number,
+    default: 0,
   },
   seasonId: {
     type: mongoose.Schema.Types.ObjectId,
