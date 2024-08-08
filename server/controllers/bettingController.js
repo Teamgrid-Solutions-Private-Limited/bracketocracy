@@ -33,9 +33,9 @@ class bettingController {
       if (!season) return res.status(404).json({ message: "Season not found" });
   
       // Retrieve the user's score from the User document
-      const score = user.score;
+      // const score = user.score;
   
-      const bet = new Betting({ matchId, userId, selectedWinner, score, seasonId });
+      const bet = new Betting({ matchId, userId, selectedWinner,seasonId });
       const savedBet = await bet.save();
   
       res.status(201).json({ message: "Bet placed successfully", savedBet });
@@ -103,7 +103,7 @@ class bettingController {
           return;
         }
   
-        let updatedScore = score;
+        let updatedScore = user.score;
   
         if (roundSlug === "round-6") {
           if (selectedWinner.toString() === decidedWinner.toString()) {
@@ -116,7 +116,7 @@ class bettingController {
           }
         }
   
-        await Betting.findByIdAndUpdate(bet._id, { score: updatedScore }, { new: true }).exec();
+        // await Betting.findByIdAndUpdate(bet._id, { score: updatedScore }, { new: true }).exec();
         await User.findByIdAndUpdate(userId, { score: updatedScore }, { new: true }).exec(); // Update user score
       }));
   
