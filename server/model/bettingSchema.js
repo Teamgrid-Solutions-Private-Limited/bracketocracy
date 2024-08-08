@@ -19,7 +19,7 @@ const bettingSchema = new mongoose.Schema({
   },
   score: {
     type: Number,
-    default: 0,
+     
   },
   seasonId: {
     type: mongoose.Schema.Types.ObjectId,
