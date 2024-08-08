@@ -10,7 +10,7 @@ const checkAdmin = require("../middleware/checkAdmin");
 
 const router = express.Router();
 
-router.post("/addSetting", createSetting);
+router.post("/addSetting", checkAdmin, createSetting);
 
 router.get("/:settingKey", checkUser, getSetting);
 
