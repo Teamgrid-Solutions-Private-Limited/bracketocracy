@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 
 const checkAdmin = async (req, res, next) => {
   const authHeader = req.headers["authorization"];
-  console.log(authHeader);
 
   const token = authHeader && authHeader.split(" ")[1]; // Extract token from Bearer <token>
   //console.log(token);
@@ -24,7 +23,7 @@ const checkAdmin = async (req, res, next) => {
 
     // Find the role by ID
     const role = await Role.findById(roleId);
-    console.log(role.name);
+    // console.log(role.name);
 
     if (!role) {
       return res.status(404).json({ message: "Role not found" });
