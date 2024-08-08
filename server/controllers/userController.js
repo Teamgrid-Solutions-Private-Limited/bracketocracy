@@ -341,11 +341,9 @@ class userController {
 
         if (password && !currentPassword) {
           console.error("Current password is required to update password");
-          return res
-            .status(400)
-            .json({
-              message: "Current password is required to update password",
-            });
+          return res.status(400).json({
+            message: "Current password is required to update password",
+          });
         }
 
         // Find the user by ID

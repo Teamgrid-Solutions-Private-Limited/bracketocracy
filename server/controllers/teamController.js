@@ -22,10 +22,10 @@ class teamController {
           return res.status(400).json({ message: "Missing required fields" });
         }
 
-        // Validate roleId
+        // Validate
         if (!mongoose.Types.ObjectId.isValid(seasonId)) {
-          console.error("Invalid roleId");
-          return res.status(400).json({ message: "Invalid roleId" });
+          console.error("Invalid seasonId");
+          return res.status(400).json({ message: "Invalid seasonId" });
         }
 
         try {
