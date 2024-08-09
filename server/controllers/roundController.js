@@ -3,13 +3,26 @@ const Season = require("../model/seasonSchema");
 const slugify = require("slugify");
 
 class roundController {
-  
   static addRound = async (req, res) => {
     try {
-      const { name, playDate, biddingEndDate, totalMatch, seasonId, roundNumber } = req.body;
+      const {
+        name,
+        playDate,
+        biddingEndDate,
+        totalMatch,
+        seasonId,
+        roundNumber,
+      } = req.body;
 
       // Validate required fields
-      if (!name || !playDate || !biddingEndDate || !totalMatch || !seasonId || !roundNumber) {
+      if (
+        !name ||
+        !playDate ||
+        !biddingEndDate ||
+        !totalMatch ||
+        !seasonId ||
+        !roundNumber
+      ) {
         return res.status(400).json({ error: "All fields are required" });
       }
 
@@ -24,12 +37,18 @@ class roundController {
       }
 
       if (playDateObj < now || biddingEndDateObj < now) {
-        return res.status(400).json({ error: "Play date and bidding end date must be in the future" });
+        return res
+          .status(400)
+          .json({
+            error: "Play date and bidding end date must be in the future",
+          });
       }
 
       // Validate totalMatch
       if (totalMatch <= 0) {
-        return res.status(400).json({ error: "Total match must be greater than 0" });
+        return res
+          .status(400)
+          .json({ error: "Total match must be greater than 0" });
       }
 
       // Check if season exists
@@ -51,12 +70,14 @@ class roundController {
       });
 
       const result = await round.save();
-      return res.status(201).json({ message: "Round created successfully", data: result });
+      return res
+        .status(201)
+        .json({ message: "Round created successfully", data: result });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Internal Server Error" });
     }
-  }
+  };
   static viewRound = async (req, res) => {
     try {
       const roundList = await Round.find().exec();
