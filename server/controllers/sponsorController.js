@@ -91,7 +91,7 @@ class sponsorController {
         .status(200)
         .json({ message: "Update done successfully", info: updatedSponsor });
     } catch (err) {
-      res.status(500).json({ msg: "this error",error: err.message });
+      res.status(500).json({  error: err.message });
     }
   };
 }
