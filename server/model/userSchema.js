@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
- 
 
 const userSchema = new mongoose.Schema({
   password: {
@@ -37,9 +36,11 @@ const userSchema = new mongoose.Schema({
   socialMediaId: {
     type: String,
   },
-  score : {
-    type:Number,
-    default:0},
+  score: {
+    type: Number,
+    index: -1,
+    default: 0,
+  },
   created: {
     type: Date,
     default: Date.now,
@@ -50,5 +51,5 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-const userModel= mongoose.model("users", userSchema);
- module.exports = userModel;
+const userModel = mongoose.model("users", userSchema);
+module.exports = userModel;
