@@ -23,13 +23,13 @@ class TeamController {
 
         // Validate required fields
         if (!name || !status || !seed) {
-          console.error("Missing required fields");
+          
           return res.status(400).json({ message: "Missing required fields" });
         }
 
         // Validate seasonId
         if (seasonId && !mongoose.Types.ObjectId.isValid(seasonId)) {
-          console.error("Invalid seasonId");
+        
           return res.status(400).json({ message: "Invalid seasonId" });
         }
 
@@ -45,12 +45,12 @@ class TeamController {
           const result = await team.save();
           res.status(201).json({ message: "Team created successfully", data: result });
         } catch (err) {
-          console.error("Error creating team:", err);
+          
           res.status(500).json({ message: "Error creating team" });
         }
       });
     } catch (err) {
-      console.error("Error in addTeam function:", err);
+     
       res.status(500).json({ message: "Error creating team" });
     }
   };
@@ -66,7 +66,7 @@ class TeamController {
 
       res.status(200).json({ message: "Team deleted successfully", info: result });
     } catch (err) {
-      console.error("Error deleting team:", err);
+     
       res.status(500).json({ message: "Error deleting team" });
     }
   };
@@ -76,7 +76,7 @@ class TeamController {
       const data = await Team.find();
       res.status(200).json({ message: "Teams retrieved successfully", info: data });
     } catch (err) {
-      console.error("Error retrieving teams:", err);
+       
       res.status(500).json({ message: "Error retrieving teams" });
     }
   };
@@ -92,7 +92,7 @@ class TeamController {
 
       res.status(200).json({ message: "Team retrieved successfully", data });
     } catch (err) {
-      console.error("Error retrieving team by ID:", err);
+       
       res.status(500).json({ message: "Error retrieving team" });
     }
   };
@@ -105,14 +105,14 @@ class TeamController {
 
         // Validate teamId
         if (!teamId) {
-          console.error("Team ID is required");
+          
           return res.status(400).json({ message: "Team ID is required" });
         }
 
         const team = await Team.findById(teamId);
 
         if (!team) {
-          console.error("Team not found");
+          
           return res.status(404).json({ message: "Team not found" });
         }
 
@@ -121,7 +121,7 @@ class TeamController {
         if (status) team.status = status;
         if (seasonId) {
           if (!mongoose.Types.ObjectId.isValid(seasonId)) {
-            console.error("Invalid seasonId");
+            
             return res.status(400).json({ message: "Invalid seasonId" });
           }
           team.seasonId = seasonId;
@@ -137,12 +137,12 @@ class TeamController {
           const updatedTeam = await team.save();
           res.status(200).json({ message: "Team updated successfully", data: updatedTeam });
         } catch (err) {
-          console.error("Error updating team:", err);
+           
           res.status(500).json({ message: "Error updating team" });
         }
       });
     } catch (err) {
-      console.error("Error in updateTeam function:", err);
+       
       res.status(500).json({ message: "Error updating team" });
     }
   };
