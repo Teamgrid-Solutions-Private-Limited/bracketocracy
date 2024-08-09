@@ -73,6 +73,7 @@ class sponsorController {
     try {
       const { id } = req.params;
       const update = req.body;
+       
 
       // Find the sponsor by ID and update its data
       const updatedSponsor = await Sponsor.findByIdAndUpdate(
@@ -87,10 +88,10 @@ class sponsorController {
       }
 
       res
-        .status(201)
-        .json({ message: "Update done successfully", info: updatedsponsor });
+        .status(200)
+        .json({ message: "Update done successfully", info: updatedSponsor });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      res.status(500).json({ msg: "this error",error: err.message });
     }
   };
 }
