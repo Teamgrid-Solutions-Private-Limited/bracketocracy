@@ -4,11 +4,11 @@ const { updateCount, countDelete, searchById, viewAll, addCountdown } = require(
 
 
 const router = express.Router();
-router.post('/create',addCountdown);
-router.get('/show',viewAll);
-router.get('/search/:id',searchById);
-router.delete('/delete/:id',countDelete);
-router.put('/update/:id',updateCount);
+router.post('/countdown/create',addCountdown);
+router.get('/countdown/show',viewAll);
+router.get('/countdown/search/:id',searchById);
+router.delete('/countdown/delete/:id',countDelete);
+router.put('/countdown/update/:id',updateCount);
 
 
 module.exports=router;

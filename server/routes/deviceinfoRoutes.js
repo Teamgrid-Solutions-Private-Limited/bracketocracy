@@ -3,7 +3,7 @@ const router = express.Router();
 const { getDeviceInfoByUserId, createDeviceInfo }= require("../controllers/deviceinfoController");
 
  
-router.post('/device-info',  createDeviceInfo);
-router.get('/device-info/user/:userId',  getDeviceInfoByUserId);
+router.post('/deviceinfo/create',  createDeviceInfo);
+router.get('/deviceinfo/user/:userId',  getDeviceInfoByUserId);
 
 module.exports = router;

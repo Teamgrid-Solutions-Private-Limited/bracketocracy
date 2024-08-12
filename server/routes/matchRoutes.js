@@ -9,10 +9,10 @@ const {
 } = require("../controllers/matchController");
 
 const router = express.Router();
-router.post("/create", createMatch);
-router.get("/search/:id", getMatchById);
-router.delete("/delete/:id", deleteMatch);
-router.put("/update/:id",updateMatch);
-router.put("/final/:id",finalScores)
+router.post("/match/create", createMatch);
+router.get("/match/search/:id", getMatchById);
+router.delete("/match/delete/:id", deleteMatch);
+router.put("/match/update/:id",updateMatch);
+router.put("/match/final/:id",finalScores)
  
 module.exports = router;

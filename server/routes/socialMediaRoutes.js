@@ -7,10 +7,10 @@ const {addSocial, showAll, socialDelete, updateSocial, searchSocial} = require('
 
  
 
-router.post('/create',addSocial);
-router.get('/view',showAll);
-router.get('/viewBy/:id', searchSocial);
-router.put('/update/:id',updateSocial);
-router.delete('/delete/:id',socialDelete);
+router.post('/socialmedia/create',addSocial);
+router.get('/socialmedia/view',showAll);
+router.get('/socialmedia/viewBy/:id', searchSocial);
+router.put('/socialmedia/update/:id',updateSocial);
+router.delete('/socialmedia/delete/:id',socialDelete);
 
 module.exports = router;

@@ -3,10 +3,10 @@ const { createNotification, viewAll, updatedNotification, notificationDelete } =
 
 const Router = express.Router();
 
-Router.post("/addnotification",createNotification);
-Router.get("/showall",viewAll);
-Router.put("/update",updatedNotification);
-Router.delete("/delete",notificationDelete);
+Router.post("/adminnotification/create",createNotification);
+Router.get("/adminnotification/showall",viewAll);
+Router.put("/adminnotification/update/:id",updatedNotification);
+Router.delete("/adminnotification/delete",notificationDelete);
 
 module.exports = Router;
  
