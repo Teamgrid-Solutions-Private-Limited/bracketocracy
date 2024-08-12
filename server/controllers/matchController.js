@@ -10,8 +10,7 @@ class matchController {
   
  static createMatch = async (req, res) => {
     try {
-      // Log the request body
-      console.log("Request Body:", req.body);
+      
 
       const {
         teamOneId,
@@ -102,64 +101,116 @@ class matchController {
   };
 
   //final score---
+  // static finalScores = async (req, res) => {
+  //   try {
+  //     const {teamOneScore, teamTwoScore } = req.body;
+  //     const {id} = req.params;
+  //     console.log(id);
+  //     console.log(teamOneScore);
+  //     console.log(teamTwoScore);
+
+  //     // Validate that IDs and scores are present
+  //     if (
+  //       !id ||
+  //       teamOneScore === undefined ||
+  //       teamTwoScore === undefined
+  //     ) {
+  //       return res
+  //         .status(400)
+  //         .json({ message: "Match ID and scores are required" });
+  //     }
+
+  //     // Find the match
+  //     const match = await Match.findById(id).exec();
+  //     if (!match) {
+  //       return res.status(404).json({ message: "Match not found" });
+  //     }
+
+  //     // Update scores
+  //     match.teamOneScore = teamOneScore;
+  //     match.teamTwoScore = teamTwoScore;
+
+  //     // Determine the decided winner based on updated scores
+  //     let decidedWinner = null;
+  //     if (teamOneScore > teamTwoScore) {
+  //       decidedWinner = match.teamOneId;
+  //     } else if (teamTwoScore > teamOneScore) {
+  //       decidedWinner = match.teamTwoId;
+  //     } else {
+  //       decidedWinner = null; // Or handle ties if applicable
+  //     }
+
+  //     // Update decidedWinner
+  //     match.decidedWinner = decidedWinner;
+
+  //     // Save the updated match
+  //     const updatedMatch = await match.save();
+
+  //     // Respond with the updated match
+  //     res
+  //       .status(200)
+  //       .json({ message: "Match updated successfully", updatedMatch });
+  //   } catch (error) {
+  //     // Log error details
+  //     console.error("Error occurred while updating match:", error);
+
+  //     // Respond with error message
+  //     res.status(500).json({ error:error.message});
+  //   }
+  // };
+
   static finalScores = async (req, res) => {
     try {
-      const {teamOneScore, teamTwoScore } = req.body;
-      const {id} = req.params;
-      console.log(id);
-      console.log(teamOneScore);
-      console.log(teamTwoScore);
-
-      // Validate that IDs and scores are present
-      if (
-        !id ||
-        teamOneScore === undefined ||
-        teamTwoScore === undefined
-      ) {
-        return res
-          .status(400)
-          .json({ message: "Match ID and scores are required" });
+      const { teamOneScore, teamTwoScore } = req.body;
+      const { id } = req.params;
+  
+      console.log(`ID: ${id}`);
+      console.log(`Team One Score: ${teamOneScore}`);
+      console.log(`Team Two Score: ${teamTwoScore}`);
+  
+      // Validate that ID and scores are present
+      if (!id || teamOneScore === undefined || teamTwoScore === undefined) {
+        return res.status(400).json({ message: "Match ID and scores are required" });
       }
-
+  
       // Find the match
       const match = await Match.findById(id).exec();
       if (!match) {
         return res.status(404).json({ message: "Match not found" });
       }
-
+  
       // Update scores
       match.teamOneScore = teamOneScore;
+      console.log(match.teamOneScore);
       match.teamTwoScore = teamTwoScore;
-
+      console.log(match.teamTwoScore);
+  
       // Determine the decided winner based on updated scores
       let decidedWinner = null;
       if (teamOneScore > teamTwoScore) {
-        decidedWinner = match.teamOneId;
+        decidedWinner = match.teamOneId.toString();
       } else if (teamTwoScore > teamOneScore) {
-        decidedWinner = match.teamTwoId;
+        decidedWinner = match.teamTwoId.toString();
       } else {
         decidedWinner = null; // Or handle ties if applicable
       }
-
+  
+      console.log(`Decided Winner (ID): ${decidedWinner}`);
+  
       // Update decidedWinner
       match.decidedWinner = decidedWinner;
-
+  
       // Save the updated match
       const updatedMatch = await match.save();
-
+  
       // Respond with the updated match
-      res
-        .status(200)
-        .json({ message: "Match updated successfully", updatedMatch });
+      res.status(200).json({ message: "Match updated successfully", updatedMatch });
     } catch (error) {
-      // Log error details
       console.error("Error occurred while updating match:", error);
-
-      // Respond with error message
-      res.status(500).json({ error:error.message});
+      res.status(500).json({ error: "Internal Server Error" });
     }
   };
-
+  
   // Delete a match by ID
   static deleteMatch = async (req, res) => {
     try {
