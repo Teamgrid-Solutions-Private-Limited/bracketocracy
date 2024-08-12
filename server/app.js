@@ -29,7 +29,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("./my-upload"));
+app.use(express.static("my-upload"));
 
 app.use("/role", roleRoute);
 app.use("/user", userRoute);

@@ -1,9 +1,9 @@
 const Team = require("../model/teamSchema");
-const mongoose =require("mongoose")
+const mongoose = require("mongoose");
 const upload = require("../middleware/fileUpload");
 
 const BASE_URL = "http://localhost:6010/";
-const upload_URL = BASE_URL + "my-uploads/";
+const upload_URL = BASE_URL + "images/";
 
 class teamController {
   static addTeam = async (req, res) => {
@@ -32,7 +32,7 @@ class teamController {
           const user = new Team({
             name,
             seed,
-            logo: `${upload_URL}${req.file.filename}`,
+            logo: req.file ? `${upload_URL}${req.file.filename}` : undefined,
             seasonId,
             status: status || 1, // set default value for active field
           });

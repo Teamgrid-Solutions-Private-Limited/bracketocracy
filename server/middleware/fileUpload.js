@@ -2,8 +2,7 @@ const multer = require("multer");
 
 var maxSize = 1 * 1000 * 1000;
 const storage = multer.diskStorage({
-  destination: "my-upload",
-
+  destination: "my-upload/images",
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(null, uniqueSuffix + ".jpg");

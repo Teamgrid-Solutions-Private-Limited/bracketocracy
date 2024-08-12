@@ -8,7 +8,7 @@ const bettingSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "users",
-    required:true,
+    required: true,
   },
   selectedWinner: {
     type: mongoose.Schema.Types.ObjectId,
@@ -20,7 +20,7 @@ const bettingSchema = new mongoose.Schema({
   },
   // score: {
   //   type: Number,
-     
+
   // },
   seasonId: {
     type: mongoose.Schema.Types.ObjectId,
