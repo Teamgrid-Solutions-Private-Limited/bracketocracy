@@ -7,107 +7,10 @@ const Season = require("../model/seasonSchema");
 const Zone = require("../model/zoneSchema");
 
 class matchController {
-  // static createMatch = async (req, res) => {
-  //   try {
-  //     // Log the request body
-  //     console.log("Request Body:", req.body);
-
-  //     const {
-  //       teamOneId,
-  //       teamTwoId,
-  //       teamOneScore = 0,
-  //       teamTwoScore = 0,
-  //       decidedWinner,
-  //       status = 0,
-  //       roundSlug,
-  //       zoneSlug,
-  //       seasonId,
-  //       matchNo,
-  //     } = req.body;
-
-  //     // Validate that IDs are present
-  //     if (!teamOneId || !teamTwoId || !decidedWinner) {
-  //       return res
-  //         .status(400)
-  //         .json({ message: "Team IDs and decided winner are required" });
-  //     }
-
-  //     // Fetch documents from the database
-  //     const teamOne = await Team.findById(teamOneId).exec();
-  //     const teamTwo = await Team.findById(teamTwoId).exec();
-  //     const season = seasonId ? await Season.findById(seasonId).exec() : null;
-  //     const round = roundSlug
-  //       ? await Round.findOne({ slug: roundSlug }).exec()
-  //       : null;
-  //     const zone = zoneSlug
-  //       ? await Zone.findOne({ slug: zoneSlug }).exec()
-  //       : null;
-
-  //     // Log fetched documents
-  //     console.log("Fetched Documents:", {
-  //       teamOne,
-  //       teamTwo,
-  //       season,
-  //       round,
-  //       zone,
-  //     });
-
-  //     // Check if teams exist
-  //     if (!teamOne || !teamTwo) {
-  //       return res.status(404).json({ message: "One or both teams not found" });
-  //     }
-
-  //     // Check if decidedWinner exists
-  //     if (
-  // !teamOne ||
-  // !teamTwo ||
-  //       (teamOne._id.toString() !== decidedWinner.toString() &&
-  //         teamTwo._id.toString() !== decidedWinner.toString())
-  //     ) {
-  //       return res
-  //         .status(404)
-  //         .json({ message: "Decided winner not found among the teams" });
-  //     }
-
-  //     // Check if season exists
-  //     if (seasonId && !season) {
-  //       return res.status(404).json({ message: "Season not found" });
-  //     }
-
-  //     // Create and save the match document
-  //     const match = new Match({
-  //       teamOneId,
-  //       teamTwoId,
-  //       teamOneScore,
-  //       teamTwoScore,
-  //       finalscore,
-  //       decidedWinner,
-  //       status,
-  //       roundSlug,
-  //       zoneSlug,
-  //       seasonId,
-  //       matchNo,
-  //     });
-
-  //     const savedMatch = await match.save();
-
-  //     // Respond with the saved match
-  //     res
-  //       .status(201)
-  //       .json({ message: "match created successfully", savedMatch });
-  //   } catch (error) {
-  //     // Log error details
-  //     console.error("Error occurred while creating match:", error);
-
-  //     // Respond with error message
-  //     res.status(400).json({ error: error.message });
-  //   }
-  // };
-
-  static createMatch = async (req, res) => {
+  
+ static createMatch = async (req, res) => {
     try {
-      // Log the request body
-      console.log("Request Body:", req.body);
+      
 
       const {
         teamOneId,
@@ -138,13 +41,13 @@ class matchController {
         : null;
 
       // Log fetched documents
-      console.log("Fetched Documents:", {
-        teamOne,
-        teamTwo,
-        season,
-        round,
-        zone,
-      });
+      // console.log("Fetched Documents:", {
+      //   teamOne,
+      //   teamTwo,
+      //   season,
+      //   round,
+      //   zone,
+      // });
 
       // Check if teams exist
       if (!teamOne || !teamTwo) {
@@ -197,65 +100,60 @@ class matchController {
     }
   };
 
-  //final score---
+ 
+
   static finalScores = async (req, res) => {
     try {
-      const {teamOneScore, teamTwoScore } = req.body;
-      const {id} = req.params;
-      console.log(id);
-      console.log(teamOneScore);
-      console.log(teamTwoScore);
-
-      // Validate that IDs and scores are present
-      if (
-        !id ||
-        teamOneScore === undefined ||
-        teamTwoScore === undefined
-      ) {
-        return res
-          .status(400)
-          .json({ message: "Match ID and scores are required" });
+      const { teamOneScore, teamTwoScore } = req.body;
+      const { id } = req.params;
+  
+      // console.log(`ID: ${id}`);
+      // console.log(`Team One Score: ${teamOneScore}`);
+      // console.log(`Team Two Score: ${teamTwoScore}`);
+  
+      // Validate that ID and scores are present
+      if (!id || teamOneScore === undefined || teamTwoScore === undefined) {
+        return res.status(400).json({ message: "Match ID and scores are required" });
       }
-
+  
       // Find the match
       const match = await Match.findById(id).exec();
       if (!match) {
         return res.status(404).json({ message: "Match not found" });
       }
-
+  
       // Update scores
       match.teamOneScore = teamOneScore;
+      
       match.teamTwoScore = teamTwoScore;
-
+     
+  
       // Determine the decided winner based on updated scores
       let decidedWinner = null;
       if (teamOneScore > teamTwoScore) {
-        decidedWinner = match.teamOneId;
+        decidedWinner = match.teamOneId.toString();
       } else if (teamTwoScore > teamOneScore) {
-        decidedWinner = match.teamTwoId;
+        decidedWinner = match.teamTwoId.toString();
       } else {
         decidedWinner = null; // Or handle ties if applicable
       }
-
+  
+      // console.log(`Decided Winner (ID): ${decidedWinner}`);
+  
       // Update decidedWinner
       match.decidedWinner = decidedWinner;
-
+  
       // Save the updated match
       const updatedMatch = await match.save();
-
+  
       // Respond with the updated match
-      res
-        .status(200)
-        .json({ message: "Match updated successfully", updatedMatch });
+      res.status(200).json({ message: "Match updated successfully", updatedMatch });
     } catch (error) {
-      // Log error details
       console.error("Error occurred while updating match:", error);
-
-      // Respond with error message
-      res.status(500).json({ error:error.message});
+      res.status(500).json({ error: "Internal Server Error" });
     }
   };
-
+  
   // Delete a match by ID
   static deleteMatch = async (req, res) => {
     try {

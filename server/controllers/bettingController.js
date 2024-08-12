@@ -34,9 +34,7 @@ class bettingController {
       if (!user) return res.status(404).json({ message: "User not found" });
       if (!season) return res.status(404).json({ message: "Season not found" });
 
-      // Retrieve the user's score from the User document
-      // const score = user.score;
-
+     
       const bet = new Betting({ matchId, userId, selectedWinner, seasonId });
       const savedBet = await bet.save();
 
@@ -142,7 +140,7 @@ class bettingController {
             }
           }
 
-          // await Betting.findByIdAndUpdate(bet._id, { score: updatedScore }, { new: true }).exec();
+          
           await User.findByIdAndUpdate(
             userId,
             { score: updatedScore },

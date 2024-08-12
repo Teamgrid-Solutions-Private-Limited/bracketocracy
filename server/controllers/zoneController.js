@@ -1,73 +1,90 @@
-// zones.js schema
 const Zone = require("../model/zoneSchema");
-
 const slugify = require("slugify");
 
-class zoneController {
+class ZoneController {
+  static handleError = (res, error, message = "Internal Server Error", status = 500) => {
+    console.error(message, error);
+    res.status(status).json({ error: message });
+  };
+
   static addZone = async (req, res) => {
     try {
       const { zoneName } = req.body;
+
       if (!zoneName) {
-        console.log(zoneName);
-        return res.status(400).json({ error: "Name  is required" });
+        console.log("Zone name is missing:", zoneName);
+        return res.status(400).json({ error: "Name is required" });
       }
-      const slug = slugify(zoneName);
-      const zone = new Zone({ zoneName, slug });
+
+      const zone = new Zone({
+        zoneName,
+        slug: slugify(zoneName),
+      });
+
       const result = await zone.save();
-      res
-        .status(201)
-        .json({ message: "Zone created successfully", data: result });
+      res.status(201).json({ message: "Zone created successfully", data: result });
     } catch (error) {
-      console.error(error);
-      res.status(404).json({ error: "Internal Server Error" });
+      ZoneController.handleError(res, error, "Error creating zone");
     }
   };
 
   static viewAll = async (req, res) => {
     try {
       const data = await Zone.find();
-      res.status(200).json({ message: "view successful", info: data });
-    } catch (err) {
-      res.status(404).json({ error: err.message });
+      res.status(200).json({ message: "Zones retrieved successfully", info: data });
+    } catch (error) {
+      ZoneController.handleError(res, error, "Error retrieving zones");
     }
   };
 
   static searchZone = async (req, res) => {
     try {
-      let zoneId = req.params.id;
+      const zoneId = req.params.id;
       const result = await Zone.findById(zoneId);
+
+      if (!result) {
+        return res.status(404).json({ error: "Zone not found" });
+      }
+
       res.status(200).json({ data: result });
-    } catch (err) {
-      res.status(404).json({ error: err.message });
+    } catch (error) {
+      ZoneController.handleError(res, error, "Error fetching zone by ID");
     }
   };
 
   static zoneDelete = async (req, res) => {
     try {
-      const data = req.params.id;
-      const result = await Zone.findByIdAndDelete(data);
-      res
-        .status(200)
-        .json({ message: "zone deleted successfully", info: result });
-    } catch (err) {
-      res.status(404).json({ error: err.message });
+      const zoneId = req.params.id;
+      const result = await Zone.findByIdAndDelete(zoneId);
+
+      if (!result) {
+        return res.status(404).json({ error: "Zone not found" });
+      }
+
+      res.status(200).json({ message: "Zone deleted successfully", info: result });
+    } catch (error) {
+      ZoneController.handleError(res, error, "Error deleting zone");
     }
   };
 
   static updateZone = async (req, res) => {
     try {
       const zoneId = req.params.id;
-      const data = req.body;
+      const { zoneName } = req.body;
+
       const zoneData = await Zone.findById(zoneId);
-      zoneData.zoneName = data.zoneName;
-      // zonedata.slug = data.slug;
-      zoneData.slug = slugify(data.zoneName);
-      const update = await zoneData.save();
-      res
-        .status(200)
-        .json({ message: "update done successfully", info: update });
-    } catch (err) {
-      res.status(404).json({ error: err.message });
+
+      if (!zoneData) {
+        return res.status(404).json({ error: "Zone not found" });
+      }
+
+      zoneData.zoneName = zoneName;
+      zoneData.slug = slugify(zoneName);
+      const updatedZone = await zoneData.save();
+
+      res.status(200).json({ message: "Update done successfully", info: updatedZone });
+    } catch (error) {
+      ZoneController.handleError(res, error, "Error updating zone");
     }
   };
 
@@ -75,16 +92,16 @@ class zoneController {
     try {
       const slug = req.params.slug;
       const zone = await Zone.findOne({ slug });
+
       if (!zone) {
-        res.status(404).send({ message: "Zone not found" });
-      } else {
-        res.send(zone);
+        return res.status(404).json({ message: "Zone not found" });
       }
-    } catch (err) {
-      console.error(err);
-      res.status(500).send({ message: "Error fetching zone" });
+
+      res.status(200).json({ data: zone });
+    } catch (error) {
+      ZoneController.handleError(res, error, "Error fetching zone by slug");
     }
   };
 }
 
-module.exports = zoneController;
+module.exports = ZoneController;

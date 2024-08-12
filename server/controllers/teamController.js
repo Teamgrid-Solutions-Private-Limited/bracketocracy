@@ -5,110 +5,128 @@ const upload = require("../middleware/fileUpload");
 const BASE_URL = "http://localhost:6010/";
 const upload_URL = BASE_URL + "images/";
 
-class teamController {
+class TeamController {
+  static handleFileUpload = (req, res, next) => {
+    upload.single("logo")(req, res, (err) => {
+      if (err) {
+        console.error("Error uploading file:", err);
+        return res.status(400).json({ message: "Error uploading file" });
+      }
+      next();
+    });
+  };
+
   static addTeam = async (req, res) => {
     try {
-      upload.single("logo")(req, res, async (err) => {
-        if (err) {
-          console.error("Error uploading file:", err);
-          return res.status(400).json({ message: "Error uploading file" });
-        }
-
+      await TeamController.handleFileUpload(req, res, async () => {
         const { name, status, seasonId, seed } = req.body;
 
         // Validate required fields
         if (!name || !status || !seed) {
-          console.error("Missing required fields");
+          
           return res.status(400).json({ message: "Missing required fields" });
         }
 
-        // Validate
-        if (!mongoose.Types.ObjectId.isValid(seasonId)) {
-          console.error("Invalid seasonId");
+        // Validate seasonId
+        if (seasonId && !mongoose.Types.ObjectId.isValid(seasonId)) {
+        
           return res.status(400).json({ message: "Invalid seasonId" });
         }
 
         try {
-          const user = new Team({
+          const team = new Team({
             name,
             seed,
             logo: req.file ? `${upload_URL}${req.file.filename}` : undefined,
             seasonId,
-            status: status || 1, // set default value for active field
+            status: status || 1, // Default value for status
           });
 
-          await user.save();
-          res.status(201).json(user);
+          const result = await team.save();
+          res.status(201).json({ message: "Team created successfully", data: result });
         } catch (err) {
-          console.error("Error creating team:", err);
+          
           res.status(500).json({ message: "Error creating team" });
         }
       });
     } catch (err) {
-      console.error("Error in addteam function:", err);
+     
       res.status(500).json({ message: "Error creating team" });
     }
   };
 
   static deleteTeam = async (req, res) => {
     try {
-      const teamid = req.params.id;
-      const result = await Team.findByIdAndDelete(teamid);
-      res
-        .status(200)
-        .json({ message: "team deleted successfully", info: result });
+      const teamId = req.params.id;
+      const result = await Team.findByIdAndDelete(teamId);
+
+      if (!result) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+
+      res.status(200).json({ message: "Team deleted successfully", info: result });
     } catch (err) {
-      res.status(404).json({ error: err.message });
+     
+      res.status(500).json({ message: "Error deleting team" });
     }
   };
 
-  static displayAll(req, res) {
-    Team.find().then((data) => {
-      res.status(200).json({
-        message: "User list retrieved successfully!",
-        users: data,
-      });
-    });
-  }
-  static displayById(req, res) {
-    Team.findById({ _id: req.params.id }).then((data) => {
-      res.status(200).json({
-        message: "User related to id  retrieved successfully!",
-        users: data,
-      });
-    });
-  }
+  static displayAll = async (req, res) => {
+    try {
+      const data = await Team.find();
+      res.status(200).json({ message: "Teams retrieved successfully", info: data });
+    } catch (err) {
+       
+      res.status(500).json({ message: "Error retrieving teams" });
+    }
+  };
+
+  static displayById = async (req, res) => {
+    try {
+      const teamId = req.params.id;
+      const data = await Team.findById(teamId);
+
+      if (!data) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+
+      res.status(200).json({ message: "Team retrieved successfully", data });
+    } catch (err) {
+       
+      res.status(500).json({ message: "Error retrieving team" });
+    }
+  };
 
   static updateTeam = async (req, res) => {
     try {
-      upload.single("logo")(req, res, async (err) => {
-        if (err) {
-          console.error("Error uploading file:", err);
-          return res.status(400).json({ message: "Error uploading file" });
-        }
-
+      await TeamController.handleFileUpload(req, res, async () => {
         const { name, status, seasonId, seed } = req.body;
-
         const teamId = req.params.id;
 
-        // Validate required fields
+        // Validate teamId
         if (!teamId) {
-          console.error("Team ID is required");
+          
           return res.status(400).json({ message: "Team ID is required" });
         }
 
-        // Find the team by ID
         const team = await Team.findById(teamId);
+
         if (!team) {
-          console.error("Team not found");
+          
           return res.status(404).json({ message: "Team not found" });
         }
 
-        // Update fields if changed
-        if (req.body.name) team.name = req.body.name;
-        if (req.body.status) team.status = req.body.status;
-        if (req.body.seasonId) team.seasonId = req.body.seasonId;
-        if (req.body.seed) team.seed = req.body.seed;
+        // Update fields if present
+        if (name) team.name = name;
+        if (status) team.status = status;
+        if (seasonId) {
+          if (!mongoose.Types.ObjectId.isValid(seasonId)) {
+            
+            return res.status(400).json({ message: "Invalid seasonId" });
+          }
+          team.seasonId = seasonId;
+        }
+        if (seed) team.seed = seed;
 
         // Update logo if uploaded
         if (req.file) {
@@ -116,18 +134,18 @@ class teamController {
         }
 
         try {
-          await team.save();
-          res.status(200).json({ message: "Team updated successfully" });
+          const updatedTeam = await team.save();
+          res.status(200).json({ message: "Team updated successfully", data: updatedTeam });
         } catch (err) {
-          console.error("Error updating team:", err);
+           
           res.status(500).json({ message: "Error updating team" });
         }
       });
     } catch (err) {
-      console.error("Error in updateTeam function:", err);
+       
       res.status(500).json({ message: "Error updating team" });
     }
   };
 }
 
-module.exports = teamController;
+module.exports = TeamController;
