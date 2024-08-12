@@ -9,11 +9,11 @@ const {
 
 const router = express.Router();
 
-router.post("/newround", addRound);
-router.get("/viewround", viewRound);
-router.delete("/delete", deleteRound);
-router.put("/editround/:id", updateRound);
+router.post("/round/create", addRound);
+router.get("/round/view", viewRound);
+router.delete("/round/delete/:id", deleteRound);
+router.put("/round/editround/:id", updateRound);
 // router.get('/viewzonebyid/:id',searchzone);
-router.get("/roundbyslug/:slug", searchRoundBySlug);
+router.get("/round/searchslug/:slug", searchRoundBySlug);
 
 module.exports = router;

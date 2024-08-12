@@ -7,12 +7,12 @@ const {
 } = require("../controllers/bettingController");
 
 // Route to place a bet
-router.post("/place-bet", placeBet);
+router.post("/bet/placebet", placeBet);
 
 // Route to handle end of match
-router.post("/handle-match-end/:matchId", handleMatchEnd);
+router.post("/bet/handle-match-end/:matchId", handleMatchEnd);
 
 // Route to get user bets
-router.get("/user-bets", getUserBets);
+router.get("/bet/user-bets/:userId", getUserBets);
 
 module.exports = router;

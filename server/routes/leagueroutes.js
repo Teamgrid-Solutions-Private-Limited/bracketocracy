@@ -3,11 +3,11 @@ const express=require('express');
 
 
 const router = express.Router();
-router.post('/create',LC.addLeague);
-router.get('/show',LC.viewAll);
-router.get('/search/:id',LC.searchLeague);
-router.delete('/delete/:id',LC.leagueDelete);
-router.put('/update/:id',LC.updateLeague);
+router.post('/league/create',LC.addLeague);
+router.get('/league/show',LC.viewAll);
+router.get('/league/search/:id',LC.searchLeague);
+router.delete('/league/delete/:id',LC.leagueDelete);
+router.put('/league/update/:id',LC.updateLeague);
 
 
 module.exports=router;

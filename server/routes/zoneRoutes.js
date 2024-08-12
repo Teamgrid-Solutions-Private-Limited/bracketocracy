@@ -10,11 +10,11 @@ const {
 } = require("../controllers/zoneController");
 const router = express.Router();
 
-router.post("/newzone", addZone);
-router.get("/viewzone", viewAll);
-router.delete("/deletezone/:id", zoneDelete);
-router.put("/editzone/:id", updateZone);
-router.get("/viewzonebyid/:id", searchZone);
-router.get("/viewzonebyslug/:slug", searchZoneBySlug);
+router.post("/zone/create", addZone);
+router.get("/zone/viewz", viewAll);
+router.delete("/zone/delete/:id", zoneDelete);
+router.put("/zone/update/:id", updateZone);
+router.get("/zone/viewByid/:id", searchZone);
+router.get("/zone/viewByslug/:slug", searchZoneBySlug);
 
 module.exports = router;

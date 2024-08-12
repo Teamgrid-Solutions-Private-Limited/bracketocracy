@@ -3,8 +3,8 @@ const { createRole, getRoles } = require("../controllers/roleController");
 
 const Router = express.Router();
 
-Router.post("/addrole", createRole);
-Router.get("/getrole", getRoles);
+Router.post("/role/addrole", createRole);
+Router.get("/role/getrole", getRoles);
 
 module.exports = Router;
  

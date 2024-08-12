@@ -10,12 +10,12 @@ const {
 } = require("../controllers/userController");
 const checkUser = require("../middleware/checkUser");
 
-Router.post("/adduser", addUser);
-Router.post("/loginuser", login);
-Router.get("/viewuser", checkUser, getUser);
-Router.get("/viewbyid/:id", getUserById);
-Router.put("/updateid/:id", updateUser);
-Router.delete("/delete/:id", deleteUser);
+Router.post("/user/create", addUser);
+Router.post("/user/login", login);
+Router.get("/user/view", checkUser, getUser);
+Router.get("/user/viewbyid/:id", getUserById);
+Router.put("/user/update/:id", updateUser);
+Router.delete("/user/delete/:id", deleteUser);
 
 module.exports = Router;
  

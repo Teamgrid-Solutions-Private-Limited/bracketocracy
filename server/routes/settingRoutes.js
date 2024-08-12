@@ -10,11 +10,11 @@ const checkAdmin = require("../middleware/checkAdmin");
 
 const router = express.Router();
 
-router.post("/addSetting", checkAdmin, createSetting);
+router.post("/setting/add", checkAdmin, createSetting);
 
-router.get("/:settingKey", checkUser, getSetting);
+router.get("/setting/:settingKey", checkUser, getSetting);
 
-router.delete("/delete/:settingKey", checkAdmin, deleteSetting);
-router.put("/update/:settingKey", checkAdmin, updateSetting);
+router.delete("/setting/delete/:settingKey", checkAdmin, deleteSetting);
+router.put("/setting/update/:settingKey", checkAdmin, updateSetting);
 
 module.exports = router;
