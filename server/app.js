@@ -1,5 +1,10 @@
 require("dotenv").config();
 const express = require("express");
+ 
+
+const session = require('express-session');
+const passport = require('passport');
+require('./services/passport');
 const cors = require("cors");
 
 const connection = require("./db/connection");
@@ -22,9 +27,28 @@ const adminNotificationRoute = require("./routes/adminNotificationRoutes");
 const settingRoute = require("./routes/settingRoutes");
 const rankRoute = require("./routes/rankRoutes");
 const deviceinfoRoute = require("./routes/deviceinfoRoutes");
+const authRoutes = require('./routes/authRoutes');
 
 const PORT = process.env.PORT || 6010;
 const app = express();
+
+// Middleware
+// app.use(cookieSession({
+//   maxAge: 24 * 60 * 60 * 1000, // 24 hours
+//   keys: [process.env.COOKIE_KEY]
+// }));
+// app.use(passport.initialize());
+// app.use(passport.session());
+
+app.use(session({
+  secret: process.env.COOKIE_KEY, // Use a more secure secret for production
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // Set to true if using HTTPS
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(cors());
 app.use(express.json());
@@ -33,6 +57,7 @@ app.use(express.static("my-upload"));
 
 app.use("/role", roleRoute);
 app.use("/user", userRoute);
+app.use('/auth', authRoutes);
 app.use("/zone", zoneRoute);
 app.use("/season", seasonRoute);
 app.use("/round", roundRoute);
@@ -50,6 +75,11 @@ app.use("/adminnotification", adminNotificationRoute);
 app.use("/setting", settingRoute);
 app.use("/deviceinfo", deviceinfoRoute);
 app.use("/rank", rankRoute);
+ 
+app.get('/', (req, res) => {
+  res.send('Welcome to the homepage!');
+});
+
 
 app.listen(PORT, () => {
   console.log(`server has started at port ${PORT}`);
