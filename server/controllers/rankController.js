@@ -83,10 +83,7 @@ const mongoose = require("mongoose");
 const calculateAndSaveRanks = async (seasonId) => {
   try {
     // Fetch users and their scores using the index
-    const users = await User.find()
-      .sort({ score: -1 })
-      .hint({ score: -1 })
-      .hint({ score: -1 });
+    const users = await User.find().sort({ score: -1 }).hint({ score: -1 });
 
     // Assign ranks based on scores
     const rankUpdates = users.map((user, index) => ({
