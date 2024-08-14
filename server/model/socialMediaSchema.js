@@ -5,6 +5,9 @@ const socialMediaSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "users",
   },
+  google:{
+    type: String,
+  },
   facebook: {
     type: String,
   },
