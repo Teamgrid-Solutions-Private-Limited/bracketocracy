@@ -1,10 +1,7 @@
 require("dotenv").config();
-const express = require("express");
- 
-
-const session = require('express-session');
-const passport = require('passport');
-require('./services/passport');
+const session = require("express-session");
+const passport = require("passport");
+require("./services/passport");
 const cors = require("cors");
 const express = require("express");
 const webpush = require("web-push");
@@ -33,7 +30,7 @@ const adminNotificationRoute = require("./routes/adminNotificationRoutes");
 const settingRoute = require("./routes/settingRoutes");
 const rankRoute = require("./routes/rankRoutes");
 const deviceinfoRoute = require("./routes/deviceinfoRoutes");
-const authRoutes = require('./routes/authRoutes');
+const authRoutes = require("./routes/authRoutes");
 
 const PORT = process.env.PORT || 6010;
 const app = express();
@@ -46,12 +43,14 @@ const app = express();
 // app.use(passport.initialize());
 // app.use(passport.session());
 
-app.use(session({
-  secret: process.env.COOKIE_KEY, // Use a more secure secret for production
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false } // Set to true if using HTTPS
-}));
+app.use(
+  session({
+    secret: process.env.COOKIE_KEY, // Use a more secure secret for production
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Set to true if using HTTPS
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -63,7 +62,7 @@ app.use(express.static("my-upload"));
 
 app.use("/role", roleRoute);
 app.use("/user", userRoute);
-app.use('/auth', authRoutes);
+app.use("/auth", authRoutes);
 app.use("/zone", zoneRoute);
 app.use("/season", seasonRoute);
 app.use("/round", roundRoute);
@@ -81,11 +80,10 @@ app.use("/adminnotification", adminNotificationRoute);
 app.use("/setting", settingRoute);
 app.use("/deviceinfo", deviceinfoRoute);
 app.use("/rank", rankRoute);
- 
-app.get('/', (req, res) => {
-  res.send('Welcome to the homepage!');
-});
 
+app.get("/", (req, res) => {
+  res.send("Welcome to the homepage!");
+});
 
 // Set static path
 
