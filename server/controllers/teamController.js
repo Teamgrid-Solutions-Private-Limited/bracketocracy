@@ -1,11 +1,6 @@
 const Team = require("../model/teamSchema");
-<<<<<<< HEAD
- 
-const mongoose = require("mongoose");
-=======
-const mongoose = require("mongoose");
 
->>>>>>> bracketocracy-saruk
+const mongoose = require("mongoose");
 const upload = require("../middleware/fileUpload");
 
 const BASE_URL = "http://localhost:6010/";
