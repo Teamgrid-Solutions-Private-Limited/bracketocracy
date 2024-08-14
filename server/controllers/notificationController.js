@@ -38,6 +38,31 @@ class notificationController {
       res.status(500).json({ message: "Error creating notification" });
     }
   };
+
+  static getNotifications = async (req, res, next) => {
+    try {
+      const { userId, status } = req.query;
+
+      // Build query object
+      let query = {};
+      if (userId) query.userId = userId;
+      if (status) query.status = status;
+
+      // Retrieve notifications
+      const notifications = await Notification.find(query);
+
+      // Return success response
+      res
+        .status(200)
+        .json({
+          message: "Notifications retrieved successfully",
+          notifications,
+        });
+    } catch (err) {
+      console.error("Error in getNotifications function:", err);
+      res.status(500).json({ message: "Error retrieving notifications" });
+    }
+  };
 }
 
 module.exports = notificationController;
