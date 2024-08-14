@@ -51,5 +51,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+//score: { type: Number, index: true }
+
 const userModel = mongoose.model("users", userSchema);
 module.exports = userModel;
