@@ -1,13 +1,10 @@
 require("dotenv").config();
-<<<<<<< HEAD
 const express = require("express");
  
 
 const session = require('express-session');
 const passport = require('passport');
 require('./services/passport');
-=======
->>>>>>> bracketocracy-saruk
 const cors = require("cors");
 const express = require("express");
 const webpush = require("web-push");
