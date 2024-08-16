@@ -20,6 +20,9 @@ const socialMediaSchema = mongoose.Schema({
   linkedin: {
     type: String,
   },
+  apple:{
+    type: String
+  },
   status: {
     type: Boolean,
   },
