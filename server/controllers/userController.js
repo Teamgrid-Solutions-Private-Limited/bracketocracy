@@ -203,6 +203,7 @@ class userController {
       const user = await userModel.find().exec();
       res.json(user);
     } catch (error) {
+    
       res
         .status(500)
         .json({ message: "Error fetching roles", error: error.message });
