@@ -267,7 +267,7 @@ class matchController {
       const matches = await Match.aggregate([
         {
           $lookup: {
-            from: 'teams', // Make sure this is the correct collection name
+            from: 'teams',  
             localField: 'teamOneId',
             foreignField: '_id',
             as: 'teamOne'
@@ -275,7 +275,7 @@ class matchController {
         },
         {
           $lookup: {
-            from: 'teams', // Make sure this is the correct collection name
+            from: 'teams',  
             localField: 'teamTwoId',
             foreignField: '_id',
             as: 'teamTwo'
@@ -283,7 +283,7 @@ class matchController {
         },
         {
           $lookup: {
-            from: 'zones', // Make sure this is the correct collection name
+            from: 'zones',  
             localField: 'zoneSlug',
             foreignField: 'slug',
             as: 'zone'
@@ -291,7 +291,7 @@ class matchController {
         },
         {
           $lookup: {
-            from: 'rounds', // Make sure this is the correct collection name
+            from: 'rounds',  
             localField: 'roundSlug',
             foreignField: 'slug',
             as: 'round'
