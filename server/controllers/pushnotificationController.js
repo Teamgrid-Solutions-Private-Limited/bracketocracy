@@ -1,69 +1,46 @@
-const admin = require("firebase-admin");
+const PushNotificationService = require("../services/pushNotificationService");
 
-class PushNotificationService {
-  async registerDeviceForPushNotifications(deviceToken) {
+class PushNotificationController {
+  static async sendNotification(req, res) {
+    const { deviceToken, title, body } = req.body;
+
     try {
-      const response = await messaging.getToken(deviceToken);
-      console.log("Device registered for push notifications:", response);
-      return response;
+      const response = await PushNotificationService.sendNotificationToDevice(
+        deviceToken,
+        title,
+        body
+      );
+      res.status(200).json({
+        message: "Notification sent successfully",
+        response,
+      });
     } catch (error) {
-      console.error("Error registering device for push notifications:", error);
-      throw error;
+      res.status(500).json({
+        message: "Failed to send notification",
+        error: error.message,
+      });
     }
   }
 
-  async subscribeToTopic(deviceToken, topic) {
-    try {
-      await messaging.subscribeToTopic(deviceToken, topic);
-      console.log(`Device subscribed to topic ${topic} successfully`);
-    } catch (error) {
-      console.error(`Error subscribing to topic: ${error}`);
-      throw error;
-    }
-  }
+  static async subscribeToTopic(req, res) {
+    const { deviceToken, topic } = req.body;
 
-  async unsubscribeFromTopic(deviceToken, topic) {
     try {
-      await messaging.unsubscribeFromTopic(deviceToken, topic);
-      console.log(`Device unsubscribed from topic ${topic} successfully`);
+      const response = await PushNotificationService.subscribeToTopic(
+        deviceToken,
+        topic
+      );
+      res.status(200).json({
+        message: `Successfully subscribed to topic ${topic}`,
+        response,
+      });
     } catch (error) {
-      console.error(`Error unsubscribing from topic: ${error}`);
-      throw error;
-    }
-  }
-
-  async sendNotificationToDevice(deviceToken, notification) {
-    try {
-      const response = await messaging.sendToDevice(deviceToken, notification);
-      console.log("Notification sent successfully:", response);
-      return response;
-    } catch (error) {
-      console.error("Error sending notification:", error);
-      throw error;
-    }
-  }
-
-  async sendNotificationToTopic(topic, notification) {
-    try {
-      const response = await messaging.sendToTopic(topic, notification);
-      console.log("Notification sent successfully:", response);
-      return response;
-    } catch (error) {
-      console.error("Error sending notification:", error);
-      throw error;
-    }
-  }
-
-  async sendNotificationToCondition(condition, notification) {
-    try {
-      const response = await messaging.sendToCondition(condition, notification);
-      console.log("Notification sent successfully:", response);
-      return response;
-    } catch (error) {
-      console.error("Error sending notification:", error);
-      throw error;
+      res.status(500).json({
+        message: `Failed to subscribe to topic ${topic}`,
+        error: error.message,
+      });
     }
   }
 }
 
-module.exports = PushNotificationService;
+module.exports = PushNotificationController;
