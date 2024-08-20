@@ -7,7 +7,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const BASE_URL = "http://localhost:6010/";
-const upload_URL = BASE_URL + "my-uploads/";
+const upload_URL = BASE_URL + "images/";
 
 class userController {
   // const adduser = async (req, res) => {
