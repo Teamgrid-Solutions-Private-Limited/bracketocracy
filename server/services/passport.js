@@ -4,7 +4,7 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 const User = require('../model/userSchema');
 const SocialMedia = require('../model/socialMediaSchema');
-const AppleStrategy = require('passport-apple').Strategy;
+// const AppleStrategy = require('passport-apple').Strategy;
 
 // Configure Google OAuth
 passport.use(new GoogleStrategy({
@@ -108,40 +108,40 @@ passport.use(new FacebookStrategy({
 
 // apple oAuth
 
-passport.use(new AppleStrategy({
-  clientID: process.env.APPLE_CLIENT_ID, //  Service ID
-  teamID: process.env.APPLE_TEAM_ID,     //  Team ID
-  keyID: process.env.APPLE_KEY_ID,       //  Key ID
-  privateKey: process.env.APPLE_PRIVATE_KEY, //  Private Key (.p8 file content)
-  callbackURL: '/auth/apple/callback',  //  callback URL
-}, async (accessToken, refreshToken, idToken, profile, done) => {
-  try {
+// passport.use(new AppleStrategy({
+//   clientID: process.env.APPLE_CLIENT_ID, //  Service ID
+//   teamID: process.env.APPLE_TEAM_ID,     //  Team ID
+//   keyID: process.env.APPLE_KEY_ID,       //  Key ID
+//   privateKey: process.env.APPLE_PRIVATE_KEY, //  Private Key (.p8 file content)
+//   callbackURL: '/auth/apple/callback',  //  callback URL
+// }, async (accessToken, refreshToken, idToken, profile, done) => {
+//   try {
      
-    let user = await User.findOne({ socialMediaId: profile.id, authType: 4 });
-    if (!user) {
-      // Create a new user if not found
-      user = await new User({
-        email: profile._json.email, 
-        userName: profile._json.name || profile.id, // Default to profile id if name is not available
-        profilePhoto: profile._json.picture,  
-        authType: 4, // Apple
-        socialMediaId: profile.id
-      }).save();
-    }
+//     let user = await User.findOne({ socialMediaId: profile.id, authType: 4 });
+//     if (!user) {
+//       // Create a new user if not found
+//       user = await new User({
+//         email: profile._json.email, 
+//         userName: profile._json.name || profile.id, // Default to profile id if name is not available
+//         profilePhoto: profile._json.picture,  
+//         authType: 4, // Apple
+//         socialMediaId: profile.id
+//       }).save();
+//     }
 
-    //  update or create a social media record for the user
-    await SocialMedia.findOneAndUpdate(
-      { userId: user._id },
-      { apple: profile.id },
-      { upsert: true, new: true }
-    );
+//     //  update or create a social media record for the user
+//     await SocialMedia.findOneAndUpdate(
+//       { userId: user._id },
+//       { apple: profile.id },
+//       { upsert: true, new: true }
+//     );
 
-    // Complete the authentication process
-    done(null, user);
-  } catch (error) {
-    done(error, null);
-  }
-}));
+//     // Complete the authentication process
+//     done(null, user);
+//   } catch (error) {
+//     done(error, null);
+//   }
+// }));
 
  
 
