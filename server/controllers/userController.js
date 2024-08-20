@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const upload = require("../middleware/fileUpload");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Role = require("../model/roleSchema");
 
 const BASE_URL = "http://localhost:6010/";
 const upload_URL = BASE_URL + "images/";
@@ -179,8 +180,16 @@ class userController {
       if (!isValidPassword) {
         return res.status(401).json({ message: "Invalid password" });
       }
+
+      const roleId = user.roleId;
+      const role = await Role.findById(roleId);
+      const roleName = role.name;
+
       let genToken = jwt.sign(
-        { email: user.email, role: user.roleId },
+        {
+          email: user.email,
+          role: roleName,
+        },
         "secret",
         { expiresIn: "1h", algorithm: "HS256" }
       );
@@ -197,13 +206,11 @@ class userController {
       res.status(500).json({ error: "Error logging in" });
     }
   };
-
   static getUser = async (req, res) => {
     try {
       const user = await userModel.find().exec();
       res.json(user);
     } catch (error) {
-    
       res
         .status(500)
         .json({ message: "Error fetching roles", error: error.message });
@@ -214,16 +221,17 @@ class userController {
   static getUserById = async (req, res) => {
     try {
       const id = req.params.id;
-      const role = await userModel.findById(id, req.body);
-      if (!role) {
-        res.status(404).json({ message: "Role not found" });
-      } else {
-        res.status(200).json({ message: "updated sucessfully" });
+      const user = await userModel.findById(id);
+
+      // Check if the user exists
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
       }
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error fetching role", error: error.message });
+
+      res.json(user);
+    } catch (err) {
+      console.error("Error fetching user:", err);
+      res.status(500).json({ message: "Error fetching user" });
     }
   };
   /// update a user by Id
@@ -430,4 +438,3 @@ class userController {
   };
 }
 module.exports = userController;
-
