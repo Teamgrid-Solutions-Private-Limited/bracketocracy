@@ -2,12 +2,10 @@ require("dotenv").config();
 const session = require("express-session");
 const passport = require("passport");
 require("./services/passport");
-
-const session = require("express-session");
-const passport = require("passport");
-require("./services/passport");
 const cors = require("cors");
 const express = require("express");
+const bodyParser = require("body-parser");
+const path = require("path");
 
 const connection = require("./db/connection");
 const roleRoute = require("./routes/roleRoutes");
@@ -28,8 +26,9 @@ const countdownRoute = require("./routes/countdownRoutes");
 const adminNotificationRoute = require("./routes/adminNotificationRoutes");
 const settingRoute = require("./routes/settingRoutes");
 const rankRoute = require("./routes/rankRoutes");
-const deviceinfoRoute = require("./routes/deviceinfoRoutes");
 const authRoutes = require("./routes/authRoutes");
+const pushNotificationRoute = require("./routes/pushNotificationRoutes");
+const devicesRoute = require("./routes/deviceRoutes");
 
 const PORT = process.env.PORT || 6010;
 const app = express();
@@ -77,8 +76,9 @@ app.use("/socialmedia", socialMediaRoute);
 app.use("/countdown", countdownRoute);
 app.use("/adminnotification", adminNotificationRoute);
 app.use("/setting", settingRoute);
-app.use("/deviceinfo", deviceinfoRoute);
 app.use("/rank", rankRoute);
+app.use("/notifications", pushNotificationRoute);
+app.use("/devices", devicesRoute);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the homepage!");
