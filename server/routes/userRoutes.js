@@ -7,6 +7,7 @@ const {
   getUserById,
   deleteUser,
   updateUser,
+  resetPassword,
 } = require("../controllers/userController");
 const checkUser = require("../middleware/checkUser");
 
@@ -16,6 +17,7 @@ Router.get("/user/view", checkUser, getUser);
 Router.get("/user/viewbyid/:id", getUserById);
 Router.put("/user/update/:id", updateUser);
 Router.delete("/user/delete/:id", deleteUser);
+Router.put("/user/reset/:id", resetPassword);
 
 module.exports = Router;
  

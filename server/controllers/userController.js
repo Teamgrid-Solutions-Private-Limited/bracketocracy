@@ -428,6 +428,40 @@ class userController {
         .json({ message: "Error deleting user", error: error.message });
     }
   };
+
+  static resetPassword = async (req, res) => {
+    try {
+      // Extract userId from params and update data from body
+      const   {id}  = req.params;
+       
+      const { password } = req.body;
+  
+      // Validate userId format
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'Invalid User ID format' });
+      }
+   
+  
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(password, 10);
+  
+      // Update the user with the new hashed password
+      const updatedUser = await userModel.findByIdAndUpdate(
+        id,
+        { $set: { password: hashedPassword } },  // Ensure only the password is updated
+        { new: true }
+      );
+  
+      if (!updatedUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      res.status(200).json({ message: 'Password reset successfully', updatedUser });
+    } catch (error) {
+       
+      res.status(500).json({ message: 'Error updating password', error: error.message });
+    }
+  };
 }
 module.exports = userController;
 // module.exports = {
