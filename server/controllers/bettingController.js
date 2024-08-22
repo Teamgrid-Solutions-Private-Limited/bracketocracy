@@ -154,7 +154,7 @@ class bettingController {
   };
 
   // Handle end of match
-  static handleMatchEnd = async (req, res) => {
+  static handleMatchEnd = async (req) => {
     try {
       const { matchId } = req.params;
       if (!matchId) {
@@ -162,9 +162,12 @@ class bettingController {
       }
 
       await bettingController.updateBettingResults(matchId);
-      res.status(200).json({ message: "Betting results updated successfully" });
+      console.log(`Handling end of match with ID: ${matchId}`);
+      // res.status(200).json({ message: "Betting results updated successfully" });
     } catch (error) {
-      res.status(500).json({ error: "Internal Server Error" });
+      // res.status(500).json({ error: "Internal Server Error" });
+      console.error("Error handling match end:", error);
+      throw new Error("Error handling match end"); 
     }
   };
 

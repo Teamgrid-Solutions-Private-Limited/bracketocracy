@@ -5,6 +5,7 @@ const Team = require("../model/teamSchema");
 const Round = require("../model/roundSchema");
 const Season = require("../model/seasonSchema");
 const Zone = require("../model/zoneSchema");
+const bettingController = require("./bettingController");
 
 class matchController {
   
@@ -145,6 +146,8 @@ class matchController {
   
       // Save the updated match
       const updatedMatch = await match.save();
+
+      await bettingController.handleMatchEnd({ params: { matchId: id } }, res);
   
       // Respond with the updated match
       res.status(200).json({ message: "Match updated successfully", updatedMatch });
@@ -201,11 +204,11 @@ class matchController {
         return res.status(404).json({ error: "Season not found" });
       }
 
-      if (roundSlug && !(await Round.findById(roundSlug))) {
+      if (roundSlug && !(await  Round.findOne({ slug: roundSlug }))) {
         return res.status(404).json({ error: "Round not found" });
       }
 
-      if (zoneSlug && !(await Zone.findById(zoneSlug))) {
+      if (zoneSlug && !(await  Zone.findOne({ slug: zoneSlug }))) {
         return res.status(404).json({ error: "Zone not found" });
       }
 
