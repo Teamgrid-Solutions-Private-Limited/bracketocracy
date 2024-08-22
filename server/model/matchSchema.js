@@ -26,16 +26,18 @@ const matchSchema = mongoose.Schema({
   status: { type: Number ,default:true},
   roundSlug: {
     type: String,
+    
   },
   zoneSlug: {
     type: String,
+     
   },
   matchNo: {
     type: Number,
   },
   seasonId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "season",
+    ref: "seasons",
   },
   created: { type: Date, default: Date.now },
   updated: { type: Date, default: Date.now },

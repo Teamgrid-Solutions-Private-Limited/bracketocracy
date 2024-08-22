@@ -248,5 +248,111 @@ class matchController {
       res.status(500).json({ error: err.message });
     }
   };
+
+  // static getMatch = async(req,res)=>{
+  //   try{
+  //     const show = await Match.find();
+  //     res.status(200).json({ message:"match retrive successfully",info:show});
+  //   }catch(error)
+  //   {
+  //     res.status(500).json({error: error.message});
+  //   }
+   
+  // }
+
+ 
+
+  static getMatch = async (req, res) => {
+    try {
+      const matches = await Match.aggregate([
+        {
+          $lookup: {
+            from: 'teams',  
+            localField: 'teamOneId',
+            foreignField: '_id',
+            as: 'teamOne'
+          }
+        },
+        {
+          $lookup: {
+            from: 'teams',  
+            localField: 'teamTwoId',
+            foreignField: '_id',
+            as: 'teamTwo'
+          }
+        },
+        {
+          $lookup: {
+            from: 'zones',  
+            localField: 'zoneSlug',
+            foreignField: 'slug',
+            as: 'zone'
+          }
+        },
+        {
+          $lookup: {
+            from: 'rounds',  
+            localField: 'roundSlug',
+            foreignField: 'slug',
+            as: 'round'
+          }
+        },
+        {
+          $unwind: { path: '$teamOne', preserveNullAndEmptyArrays: true }
+        },
+        {
+          $unwind: { path: '$teamTwo', preserveNullAndEmptyArrays: true }
+        },
+        {
+          $unwind: { path: '$zone', preserveNullAndEmptyArrays: true }
+        },
+        {
+          $unwind: { path: '$round', preserveNullAndEmptyArrays: true }
+        },
+        {
+          $project: {
+            _id: 1,
+            teamOneId: 1,
+            teamOneScore: 1,
+            teamTwoId: 1,
+            teamTwoScore: 1,
+            decidedWinner: 1,
+            status: 1,
+            matchNo: 1,
+            seasonId: 1,
+            created: 1,
+            updated: 1,
+            teamOne: {
+              _id: 1,
+              name: 1,
+              logo: 1
+            },
+            teamTwo: {
+              _id: 1,
+              name: 1,
+              logo: 1
+            },
+            zone: {
+              name: 1,
+              slug: 1
+            },
+            round: {
+              number: 1,
+              slug: 1
+            }
+          }
+        }
+      ]);
+  
+      // Send response with populated matches
+      res.status(200).json({ message: "Match retrieved successfully", info: matches });
+    } catch (error) {
+      console.error('Error fetching matches:', error); // Log error for debugging
+      res.status(500).json({ error: error.message }); // Send error response
+    }
+  };
+  
+ 
+
 }
 module.exports = matchController;

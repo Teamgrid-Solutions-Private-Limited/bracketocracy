@@ -21,5 +21,6 @@ Router.put("/user/update/:id", updateUser);
 Router.put("/user/updateuser/:id", updateAdminUser);
 Router.put("/user/reset/:id", resetPassword);
 Router.delete("/user/delete/:id", deleteUser);
+Router.put("/user/reset/:id", resetPassword);
 
 module.exports = Router;

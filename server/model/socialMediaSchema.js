@@ -5,6 +5,9 @@ const socialMediaSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "users",
   },
+  google:{
+    type: String,
+  },
   facebook: {
     type: String,
   },
@@ -16,6 +19,9 @@ const socialMediaSchema = mongoose.Schema({
   },
   linkedin: {
     type: String,
+  },
+  apple:{
+    type: String
   },
   status: {
     type: Boolean,

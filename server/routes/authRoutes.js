@@ -14,7 +14,7 @@ router.get('/google/callback', passport.authenticate('google'), (req, res) => {
 
 // Facebook OAuth routes
 router.get('/facebook', passport.authenticate('facebook', {
-  scope: ['email']
+  scope: ['email','public_profile']
 }));
 
 router.get('/facebook/callback', passport.authenticate('facebook'), (req, res) => {
@@ -32,5 +32,18 @@ router.get('/logout', (req, res) => {
 router.get('/current_user', (req, res) => {
   res.send(req.user);
 });
+
+// Route to start the Apple sign-in process
+router.get('/auth/apple',
+  passport.authenticate('apple', { scope: ['name', 'email'] })
+);
+
+// Callback route after Apple authentication
+router.get('/auth/apple/callback',passport.authenticate('apple', { failureRedirect: '/' }),
+  (req, res) => {
+    // Successful authentication
+    res.redirect('/profile');
+  }
+);
 
 module.exports = router;
