@@ -5,6 +5,7 @@ const Team = require("../model/teamSchema");
 const Round = require("../model/roundSchema");
 const Season = require("../model/seasonSchema");
 const Zone = require("../model/zoneSchema");
+const bettingController = require("./bettingController");
 
 class matchController {
   
@@ -145,6 +146,8 @@ class matchController {
   
       // Save the updated match
       const updatedMatch = await match.save();
+
+      await bettingController.handleMatchEnd({ params: { matchId: id } }, res);
   
       // Respond with the updated match
       res.status(200).json({ message: "Match updated successfully", updatedMatch });
