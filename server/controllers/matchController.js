@@ -201,11 +201,11 @@ class matchController {
         return res.status(404).json({ error: "Season not found" });
       }
 
-      if (roundSlug && !(await Round.findById(roundSlug))) {
+      if (roundSlug && !(await  Round.findOne({ slug: roundSlug }))) {
         return res.status(404).json({ error: "Round not found" });
       }
 
-      if (zoneSlug && !(await Zone.findById(zoneSlug))) {
+      if (zoneSlug && !(await  Zone.findOne({ slug: zoneSlug }))) {
         return res.status(404).json({ error: "Zone not found" });
       }
 
