@@ -436,7 +436,6 @@ class userController {
         .json({ message: "Error deleting user", error: error.message });
     }
   };
-
   static resetPassword = async (req, res) => {
     try {
       // Extract userId from params and update data from body
