@@ -414,7 +414,70 @@ class userController {
       res.status(500).json({ message: "Error updating user" });
     }
   };
+  static updateAdminUser = async (req, res) => {
+    try {
+      // Handle file upload
+      upload.single("profilePhoto")(req, res, async (err) => {
+        if (err) {
+          console.error("Error uploading file:", err);
+          return res.status(400).json({ message: "Error uploading file" });
+        }
 
+        const { email, userName, firstName, lastName } = req.body;
+        const userId = req.params.id;
+
+        // Validate required fields
+        if (!userId) {
+          console.error("User ID is required");
+          return res.status(400).json({ message: "User ID is required" });
+        }
+
+        // Find the user by ID
+        const user = await userModel.findById(userId);
+        if (!user) {
+          console.error("User not found");
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        // Update email if changed
+        if (email && email !== user.email) {
+          user.email = email;
+        }
+
+        // Update username if changed
+        if (userName) {
+          user.userName = userName;
+        }
+
+        // Update first name if changed
+        if (firstName) {
+          user.firstName = firstName;
+        }
+
+        // Update last name if changed
+        if (lastName) {
+          user.lastName = lastName;
+        }
+
+        // Update profile photo if uploaded
+        if (req.file) {
+          user.profilePhoto = `${upload_URL}${req.file.filename}`;
+        }
+
+        // Save the updated user
+        try {
+          await user.save();
+          res.status(200).json({ message: "User updated successfully" });
+        } catch (err) {
+          console.error("Error updating user:", err);
+          res.status(500).json({ message: "Error updating user" });
+        }
+      });
+    } catch (err) {
+      console.error("Error in updateUser function:", err);
+      res.status(500).json({ message: "Error updating user" });
+    }
+  };
   //delete user
   static deleteUser = async (req, res) => {
     try {
