@@ -2,14 +2,16 @@ const League = require("../model/leagueSchema");
 const User = require("../model/userSchema");
 const LeagueInvitation = require('../model/leagueInvitationSchema');
 const mongoose = require('mongoose');
+ 
 
 class leagueController {
 
   static addLeague = async (req, res) => {
-    const { title, emails, userId } = req.body;
+    const { title, emails} = req.body;
+    const userId =req.user.id;
 
     if (!title || !userId) {
-      console.log(title,description,userId);
+      console.log(title,userId);
       return res.status(400).json({
         error: "Title  and userId are required",
       });
@@ -23,7 +25,7 @@ class leagueController {
       
 
       
-      const league = new League({ title, description,userId});
+      const league = new League({ title,userId});
       const savedLeague = await league.save();
 
        
@@ -110,15 +112,42 @@ class leagueController {
     }
   };
 
+  // static searchLeague = async (req, res) => {
+  //   try {
+  //     let leagueId = req.params.id;
+  //     const result = await League.findById(leagueId);
+  //     res.status(201).json({ data: result });
+  //   } catch (err) {
+  //     res.status(500).json({ error: err.message });
+  //   }
+  // };
   static searchLeague = async (req, res) => {
     try {
-      let leagueId = req.params.id;
-      const result = await League.findById(leagueId);
-      res.status(201).json({ data: result });
+       
+      const userId = req.params.id || req.query.userId;
+
+      
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ error: "Invalid user ID format" });
+      }
+
+       
+      const leagues = await League.find({ userId: userId });
+
+      // Check if any leagues were found
+      if (leagues.length === 0) {
+        return res.status(404).json({ message: "No leagues found for this user" });
+      }
+
+      
+      res.status(200).json({ data: leagues });
     } catch (err) {
+     
       res.status(500).json({ error: err.message });
     }
   };
+
+  
 
   static leagueDelete = async (req, res) => {
     try {
