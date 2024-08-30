@@ -7,8 +7,8 @@ const mongoose = require('mongoose');
 class leagueController {
 
   static addLeague = async (req, res) => {
-    const { title, emails} = req.body;
-    const userId =req.user.id;
+    const { title, emails,userId} = req.body;
+    // const userId =req.user.id;
 
     if (!title || !userId) {
       console.log(title,userId);
@@ -25,8 +25,8 @@ class leagueController {
       
 
       
-      const league = new League({ title,userId});
-      const savedLeague = await league.save();
+      
+      
 
        
       if (emailArray.length > 0) {
@@ -42,6 +42,9 @@ class leagueController {
             message: "Some users not found for emails: " + notFoundEmails.join(', '),
           });
         }
+
+        const league = new League({ title, userId, emails: foundEmails });
+        const savedLeague = await league.save();
 
          
         const invitations = users.map(user => ({
@@ -183,6 +186,56 @@ class leagueController {
         .json({ message: "Update done successfully", info: updatedLeague });
     } catch (err) {
       res.status(500).json({ error: err.message });
+    }
+  };
+
+  static deleteUser = async (req, res) => {
+    const { leagueId, userId } = req.body;
+
+    if (!leagueId || !userId) {
+      return res.status(400).json({
+        error: "League ID and User ID are required",
+      });
+    }
+
+    try {
+      // Find the league by its ID
+      const league = await League.findById(leagueId);
+
+      if (!league) {
+        return res.status(404).json({
+          error: "League not found",
+        });
+      }
+
+      // Remove the userId from the userId array
+      const userIndex = league.userId.indexOf(userId);
+      if (userIndex > -1) {
+        league.userId.splice(userIndex, 1);
+      }
+
+      // Find the user's email
+      const user = await User.findById(userId);
+      if (user) {
+        // Remove the user's email from the emails array
+        const emailIndex = league.emails.indexOf(user.email);
+        if (emailIndex > -1) {
+          league.emails.splice(emailIndex, 1);
+        }
+      }
+
+      // Save the updated league document
+      await league.save();
+
+      res.status(200).json({
+        message: "User successfully removed from league",
+        league: league,
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: "An unexpected error occurred",
+        details: error.message,
+      });
     }
   };
 }

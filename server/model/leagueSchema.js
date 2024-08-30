@@ -11,6 +11,10 @@ const leagueSchema =  mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "users",
   }],
+  emails:[{
+    type: String,
+    ref: "users",
+  }],
   
   status: {
     type: Number,

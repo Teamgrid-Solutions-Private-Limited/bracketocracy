@@ -7,6 +7,7 @@ router.post('/league/create',LC.addLeague);
 router.get('/league/show',LC.viewAll);
 router.get('/league/search/:id',LC.searchLeague);
 router.delete('/league/delete/:id',LC.leagueDelete);
+router.delete('/league/user',LC.deleteUser);
 router.put('/league/update/:id',LC.updateLeague);
 
 
