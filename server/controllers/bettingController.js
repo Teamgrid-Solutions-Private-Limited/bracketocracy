@@ -201,7 +201,7 @@ class bettingController {
         { new: true }
       );
 
-      if (!updatedLeague) {
+      if (!updatedBet) {
         res.status(404).json({ error: "Bet not found" });
         return;
       }
