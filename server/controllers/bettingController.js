@@ -189,6 +189,30 @@ class bettingController {
       res.status(500).json({ error: error.message });
     }
   };
+  static updateBet = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const update = req.body;
+
+       
+      const updatedBet = await Betting.findByIdAndUpdate(
+        id,
+        { $set: update },
+        { new: true }
+      );
+
+      if (!updatedLeague) {
+        res.status(404).json({ error: "Bet not found" });
+        return;
+      }
+
+      res
+        .status(201)
+        .json({ message: "Update done successfully", info: updatedBet });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  };
 }
 
 module.exports = bettingController;

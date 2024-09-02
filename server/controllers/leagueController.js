@@ -165,29 +165,109 @@ class leagueController {
   };
 
   static updateLeague = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const update = req.body;
+    const { emails } = req.body;
+    const { id } = req.params;
 
-      // Find the league by ID and update its data
-      const updatedLeague = await League.findByIdAndUpdate(
-        id,
-        { $set: update },
-        { new: true }
-      );
-
-      if (!updatedLeague) {
-        res.status(404).json({ error: "League not found" });
-        return;
-      }
-
-      res
-        .status(201)
-        .json({ message: "Update done successfully", info: updatedLeague });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+    if (!id || !emails) {
+        return res.status(400).json({
+            error: "leagueId and emails are required",
+        });
     }
-  };
+
+    const emailArray = Array.isArray(emails) ? emails : [emails];
+
+    try {
+        // Find the original league
+        const originalLeague = await League.findById(id);
+        if (!originalLeague) {
+            return res.status(404).json({
+                error: "League not found",
+            });
+        }
+
+        // Find users for the updated email list
+        const newUsers = await User.find({ email: { $in: emailArray } });
+        const newUserIds = newUsers.map(user => user._id);
+
+        // Find users to be removed from the league
+        const originalEmails = originalLeague.emails;
+        const removedEmails = originalEmails.filter(email => !emailArray.includes(email));
+        const removedUsers = await User.find({ email: { $in: removedEmails } });
+        const removedUserIds = removedUsers.map(user => user._id);
+
+        // First, remove the user IDs that are no longer in the email list
+        await League.updateOne({ _id: id }, { $pull: { userId: { $in: removedUserIds } } });
+
+        // Then, add the new user IDs
+        const league = await League.findByIdAndUpdate(id, {
+            $addToSet: { userId: { $each: newUserIds } },
+            emails: emailArray,
+        }, { new: true });
+
+        res.status(200).json({
+            message: "Update done successfully",
+            info: league,
+        });
+    } catch (err) {
+        res.status(500).json({
+            error: "An unexpected error occurred",
+            details: err.message,
+        });
+    }
+};
+
+// static updateLeague = async (req, res) => {
+//   const { emails } = req.body;
+//   const { id } = req.params;
+
+//   if (!id || !emails) {
+//       return res.status(400).json({
+//           error: "leagueId and emails are required",
+//       });
+//   }
+
+//   const emailArray = Array.isArray(emails) ? emails : [emails];
+
+//   try {
+//       // Find the league to update
+//       const league = await League.findById(id);
+//       if (!league) {
+//           return res.status(404).json({
+//               error: "League not found",
+//           });
+//       }
+
+//       // Find users for the updated email list
+//       const newUsers = await User.find({ email: { $in: emailArray } });
+//       const newUserIds = newUsers.map(user => user._id);
+
+//       // Find existing users in the league
+//       const existingUsers = await User.find({ _id: { $in: league.userId } });
+//       const existingUserIds = existingUsers.map(user => user._id);
+
+//       // Update the league's userId array
+//       const updatedUserIds = [...new Set([...existingUserIds, ...newUserIds])];
+//       league.userId = updatedUserIds.filter((value, index, self) => self.indexOf(value) === index);
+
+//       // Update the league's emails
+//       league.emails = emailArray;
+
+//       // Save the updated league
+//       await league.save();
+
+//       res.status(200).json({
+//           message: "Update done successfully",
+//           info: league,
+//       });
+//   } catch (err) {
+//       res.status(500).json({
+//           error: "An unexpected error occurred",
+//           details: err.message,
+//       });
+//   }
+// };
+ 
+ 
 
   static deleteUser = async (req, res) => {
     const { leagueId, userId } = req.body;
