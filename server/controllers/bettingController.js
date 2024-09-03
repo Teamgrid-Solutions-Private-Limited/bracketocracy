@@ -213,6 +213,17 @@ class bettingController {
       res.status(500).json({ error: err.message });
     }
   };
+
+  static deleteBet = async(req,res)=>{
+    try{
+      const {id} = req.params.id;
+   const   deleteData = await Betting.findByIdAndDelete(id);
+    res.status(200).json({message:"deleted succesfully",info:deleteData});
+
+
+    }catch(error)
+    {res.status(500).json({message:"delete unsuccessfull",error:error.message})}
+  }
 }
 
 module.exports = bettingController;

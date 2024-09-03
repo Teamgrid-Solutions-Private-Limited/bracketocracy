@@ -5,6 +5,7 @@ const {
   handleMatchEnd,
   getUserBets,
   updateBet,
+  deleteBet,
 } = require("../controllers/bettingController");
 
 // Route to place a bet
@@ -16,5 +17,6 @@ router.post("/bet/handle-match-end/:matchId", handleMatchEnd);
 // Route to get user bets
 router.get("/bet/user-bets/:userId", getUserBets);
 router.put("/bet/update/:id", updateBet);
+router.delete("/bet/user-bets/:id", deleteBet);
 
 module.exports = router;

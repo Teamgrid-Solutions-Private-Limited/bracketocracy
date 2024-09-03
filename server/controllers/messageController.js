@@ -5,29 +5,31 @@ class messageController {
   // Add a new message
   static addMessage = async (req, res) => {
     try {
-      const { leagueId } = req.params;
-      const { message } = req.body;
-      const userId = req.user.userId; // Get userId from the token
+      const { id } = req.params;
+      console.log(id);
+      const { message,userId } = req.body;
+      console.log(message,userId);
+      // const userId = req.user.userId; // Get userId from the token
 
       // Validate required fields
-      if (!leagueId || !message) {
+      if (! id || !message) {
         return res.status(400).json({ error: "League ID and message are required" });
       }
 
       // Find the league
-      const league = await League.findById(leagueId);
+      const league = await League.findById(id);
       if (!league) {
         return res.status(404).json({ message: 'League not found.' });
       }
 
       // Check if the user is part of the league
-      if (!Array.isArray(league.userIds) || !league.userIds.includes(userId)) {
+      if (!Array.isArray(league.userId) || !league.userId.includes(userId)) {
         return res.status(403).json({ message: 'User is not a member of this league.' });
       }
 
       // Create a new message
       const newMessage = new Message({
-        leagueId,
+        leagueId:league._id,
         userId,
         message,
         status: 1 // Assuming status 1 means 'sent'
