@@ -56,16 +56,17 @@ class messageController {
   // Show all messages for a league
   static showAllMessages = async (req, res) => {
     try {
-      const { leagueId } = req.params;
+      const { id } = req.params;
+      console.log(id);
 
       // Find the league
-      const league = await League.findById(leagueId);
+      const league = await League.findById(id);
       if (!league) {
         return res.status(404).json({ message: "League not found." });
       }
 
       // Find all messages for the league
-      const messages = await Message.find({ leagueId });
+      const messages = await Message.find({ leagueId:id });
 
       res.status(200).json({
         message: "Messages retrieved successfully.",
