@@ -23,7 +23,7 @@ class leagueController {
     try {
        
       
-
+        let savedLeague;
       
       
       
@@ -69,6 +69,9 @@ class leagueController {
           },
         });
       } else {
+        
+        const league = new League({ title, userId});
+          savedLeague = await league.save();
         res.status(201).json({
           message: "League created successfully without invitations",
           info: savedLeague,

@@ -35,9 +35,15 @@ class invitationController {
         league.userId = [];
       }
 
+      if(!Array.isArray(league.emails))
+      {
+        league.emails=[];
+      }
+
       // // Add the userId to league's userId array
 
       league.userId.push(user.id);
+      league.emails.push(email);
 
       // Save the league
       await league.save();
