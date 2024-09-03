@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+ 
 const userSchema = new mongoose.Schema({
   password: {
     type: String,
@@ -50,8 +50,8 @@ const userSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
-
+ 
 //score: { type: Number, index: true }
-
+ 
 const userModel = mongoose.model("users", userSchema);
 module.exports = userModel;

@@ -11,7 +11,7 @@ const {
   updateAdminUser,
 } = require("../controllers/userController");
 const checkUser = require("../middleware/checkUser");
-
+ 
 Router.post("/user/create", addUser);
 Router.post("/user/login", login);
 Router.post("/admin/login", login);
@@ -22,5 +22,5 @@ Router.put("/user/updateuser/:id", updateAdminUser);
 Router.put("/user/reset/:id", resetPassword);
 Router.delete("/user/delete/:id", deleteUser);
 Router.put("/user/reset/:id", resetPassword);
-
+ 
 module.exports = Router;
