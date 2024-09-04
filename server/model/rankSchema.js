@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+ 
 const rankSchema = mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -22,6 +22,6 @@ const rankSchema = mongoose.Schema({
     default: Date.now,
   },
 });
-
+ 
 const rankModel = mongoose.model("ranks", rankSchema);
 module.exports = rankModel;
