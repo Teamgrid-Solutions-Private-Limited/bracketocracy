@@ -34,7 +34,7 @@ class bettingController {
       if (!user) return res.status(404).json({ message: "User not found" });
       if (!season) return res.status(404).json({ message: "Season not found" });
 
-     
+
       const bet = new Betting({ matchId, userId, selectedWinner, seasonId });
       const savedBet = await bet.save();
 
@@ -140,7 +140,7 @@ class bettingController {
             }
           }
 
-          
+
           await User.findByIdAndUpdate(
             userId,
             { score: updatedScore },
@@ -167,7 +167,7 @@ class bettingController {
     } catch (error) {
       // res.status(500).json({ error: "Internal Server Error" });
       console.error("Error handling match end:", error);
-      throw new Error("Error handling match end"); 
+      throw new Error("Error handling match end");
     }
   };
 
@@ -194,7 +194,7 @@ class bettingController {
       const { id } = req.params;
       const update = req.body;
 
-       
+
       const updatedBet = await Betting.findByIdAndUpdate(
         id,
         { $set: update },
@@ -214,15 +214,14 @@ class bettingController {
     }
   };
 
-  static deleteBet = async(req,res)=>{
-    try{
-      const {id} = req.params.id;
-   const   deleteData = await Betting.findByIdAndDelete(id);
-    res.status(200).json({message:"deleted succesfully",info:deleteData});
+  static deleteBet = async (req, res) => {
+    try {
+      const { id } = req.params.id;
+      const deleteData = await Betting.findByIdAndDelete(id);
+      res.status(200).json({ message: "deleted succesfully", info: deleteData });
 
 
-    }catch(error)
-    {res.status(500).json({message:"delete unsuccessfull",error:error.message})}
+    } catch (error) { res.status(500).json({ message: "delete unsuccessfull", error: error.message }) }
   }
 }
 
