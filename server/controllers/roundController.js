@@ -118,7 +118,9 @@ class roundController {
       const roundData = await Round.findById(roundId);
       roundData.name = data.name;
       roundData.totalMatch = data.totalMatch;
-
+      roundData.playDate = data.playDate;  
+      roundData.biddingEndDate = data.biddingEndDate;  
+  
       const update = await roundData.save();
       res
         .status(200)
@@ -127,6 +129,23 @@ class roundController {
       res.status(404).json({ error: err.message });
     }
   };
+
+  // static updateRound = async (req, res) => {
+  //   try {
+  //     const roundId = req.params.id;
+  //     const data = req.body;
+  //     const roundData = await Round.findById(roundId);
+  //     roundData.name = data.name;
+  //     roundData.totalMatch = data.totalMatch;
+
+  //     const update = await roundData.save();
+  //     res
+  //       .status(200)
+  //       .json({ message: "update done successfully", info: update });
+  //   } catch (err) {
+  //     res.status(404).json({ error: err.message });
+  //   }
+  // };
 
   static searchRoundBySlug = async (req, res) => {
     try {
