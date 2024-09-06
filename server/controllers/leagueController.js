@@ -168,7 +168,7 @@ class leagueController {
   };
 
   static updateLeague = async (req, res) => {
-    const { emails,title } = req.body;
+    const { emails,title,allowInvitation } = req.body;
     const { id } = req.params;
 
     if (!id || !emails) {
@@ -206,6 +206,7 @@ class leagueController {
             $addToSet: { userId: { $each: newUserIds } },
             emails: emailArray,
             title,
+            allowInvitation
         }, { new: true });
 
         res.status(200).json({
