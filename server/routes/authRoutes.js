@@ -24,9 +24,23 @@ router.get('/facebook/callback', passport.authenticate('facebook'), (req, res) =
 
 // Logout route
 router.get('/logout', (req, res) => {
-  req.logout();
-  res.redirect('/');
+  req.logout((err) => {
+    if (err) {
+      console.error('Logout error:', err);
+    }
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Session destroy error:', err);
+      }
+      // Redirect to Google’s logout URL
+      res.redirect('https://accounts.google.com/Logout');
+    });
+  });
 });
+// router.get('/logout', (req, res) => {
+//   req.logout();
+//   res.redirect('/');
+// });
 
 // Current user route
 router.get('/current_user', (req, res) => {
