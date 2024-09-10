@@ -96,7 +96,6 @@ class userController {
             .status(400)
             .json({ message: "Missing required field: userName" });
         }
-        user.userName = userName;
  
         if (!firstName) {
           console.error("Missing required field: firstName");
@@ -104,7 +103,6 @@ class userController {
             .status(400)
             .json({ message: "Missing required field: firstName" });
         }
-        user.firstName = firstName;
  
         if (!lastName) {
           console.error("Missing required field: lastName");
@@ -112,7 +110,6 @@ class userController {
             .status(400)
             .json({ message: "Missing required field: lastName" });
         }
-        user.lastName = lastName;
  
         if (!password) {
           console.error("Missing required field: password");
@@ -121,23 +118,37 @@ class userController {
             .json({ message: "Missing required field: password" });
         }
  
+        // Check if userName or email already exists
+        try {
+          const existingUser = await userModel.findOne({
+            $or: [{ userName }, { email }],
+          });
+          if (existingUser) {
+            if (existingUser.userName === userName) {
+              return res.status(400).json({ message: "Username already exists" });
+            }
+            if (existingUser.email === email) {
+              return res.status(400).json({ message: "Email already exists" });
+            }
+          }
+        } catch (err) {
+          console.error("Error checking existing user:", err);
+          return res.status(500).json({ message: "Error checking user" });
+        }
+ 
         // Hash password using bcrypt
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         user.password = hashedPassword;
-
-        const existingUser = await userModel.findOne({ email });
-        if (existingUser) {
-          return res
-            .status(400)
-            .json({ error: "User already exists with this email" });
-        }
  
-        // Set optional fields
+        // Set fields
+        user.userName = userName;
+        user.firstName = firstName;
+        user.lastName = lastName;
+ 
         if (email) {
           user.email = email;
         }
-        
         if (roleId) {
           if (!mongoose.Types.ObjectId.isValid(roleId)) {
             console.error("Invalid roleId");
@@ -164,7 +175,7 @@ class userController {
         }
       });
     } catch (err) {
-      console.error("Error in adduser function:", err);
+      console.error("Error in addUser function:", err);
       res.status(500).json({ message: "Error creating user" });
     }
   };
