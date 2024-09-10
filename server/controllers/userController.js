@@ -125,11 +125,19 @@ class userController {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         user.password = hashedPassword;
+
+        const existingUser = await userModel.findOne({ email });
+        if (existingUser) {
+          return res
+            .status(400)
+            .json({ error: "User already exists with this email" });
+        }
  
         // Set optional fields
         if (email) {
           user.email = email;
         }
+        
         if (roleId) {
           if (!mongoose.Types.ObjectId.isValid(roleId)) {
             console.error("Invalid roleId");
