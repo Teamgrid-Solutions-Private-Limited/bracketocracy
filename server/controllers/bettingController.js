@@ -135,11 +135,13 @@ class bettingController {
 
           let updatedScore = user.score;
           let bracketScore = betScore;
+          let points =0;
           
 
           if (roundSlug === "round-6") {
             if (selectedWinner.toString() === decidedWinner.toString()) {
-              updatedScore += bracketScore * 2; // Double the score
+              points = bracketScore * 2
+              updatedScore += points; // Double the score
             } else{
               updatedScore -= bracketScore;
             }
@@ -159,6 +161,12 @@ class bettingController {
             { score: updatedScore },
             { new: true }
           ).exec(); // Update user score
+
+          await Betting.findByIdAndUpdate(
+            bet._id,
+            { points: points },
+            { new: true }
+          ).exec();
         })
       );
     } catch (error) {

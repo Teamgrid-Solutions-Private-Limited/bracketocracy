@@ -28,6 +28,10 @@ const bettingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "seasons", //reference from season need to create
   },
+  points: {
+    type:Number,
+    default:0,
+  }
 });
 
 const Betting = mongoose.model("bettings", bettingSchema);
