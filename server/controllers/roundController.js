@@ -9,7 +9,7 @@ class roundController {
         name,
         playDate,
         biddingEndDate,
-        totalMatch,
+        // totalMatch,
         seasonId,
         roundNumber,
       } = req.body;
@@ -19,7 +19,7 @@ class roundController {
         !name ||
         !playDate ||
         !biddingEndDate ||
-        !totalMatch ||
+        // !totalMatch ||
         !seasonId ||
         !roundNumber
       ) {
@@ -45,11 +45,11 @@ class roundController {
       }
 
       // Validate totalMatch
-      if (totalMatch <= 0) {
-        return res
-          .status(400)
-          .json({ error: "Total match must be greater than 0" });
-      }
+      // if (totalMatch <= 0) {
+      //   return res
+      //     .status(400)
+      //     .json({ error: "Total match must be greater than 0" });
+      // }
 
       // Check if season exists
       const season = await Season.findById(seasonId);
@@ -64,7 +64,7 @@ class roundController {
         slug,
         playDate: playDateObj,
         biddingEndDate: biddingEndDateObj,
-        totalMatch,
+        // totalMatch,
         seasonId,
         roundNumber,
       });
@@ -117,7 +117,7 @@ class roundController {
       const data = req.body;
       const roundData = await Round.findById(roundId);
       roundData.name = data.name;
-      roundData.totalMatch = data.totalMatch;
+      // roundData.totalMatch = data.totalMatch;
       roundData.playDate = data.playDate;  
       roundData.biddingEndDate = data.biddingEndDate;  
   

@@ -9,10 +9,19 @@ class bettingController {
   // Place a bet
   static placeBet = async (req, res) => {
     try {
-      const { matchId, selectedWinner, seasonId, userId } = req.body;
+      const { matchId, selectedWinner, seasonId, userId,betScore } = req.body;
 
       if (!matchId || !selectedWinner || !seasonId || !userId) {
         return res.status(400).json({ message: "All fields are required" });
+      }
+        const user = await User.findById(userId);
+        if(!user)
+        {
+          return res.status(400).json({message:"user not found"});
+        }
+      if(betScore > user.score || betScore < 0)
+      {
+        return res.status(400).json({message:"bet should be greater than 0 and lesser than actual score"});
       }
 
       // Check if a bet already exists for the user and match
@@ -24,18 +33,18 @@ class bettingController {
       }
 
       // Verify references
-      const [match, user, season] = await Promise.all([
+      const [match,season] = await Promise.all([
         Match.findById(matchId).exec(),
-        User.findById(userId).exec(),
+        // User.findById(userId).exec(),
         Season.findById(seasonId).exec(),
       ]);
 
       if (!match) return res.status(404).json({ message: "Match not found" });
-      if (!user) return res.status(404).json({ message: "User not found" });
+      // if (!user) return res.status(404).json({ message: "User not found" });
       if (!season) return res.status(404).json({ message: "Season not found" });
 
 
-      const bet = new Betting({ matchId, userId, selectedWinner, seasonId });
+      const bet = new Betting({ matchId, userId, selectedWinner, seasonId,betScore });
       const savedBet = await bet.save();
 
       res.status(201).json({ message: "Bet placed successfully", savedBet });
@@ -111,7 +120,7 @@ class bettingController {
 
       await Promise.all(
         bets.map(async (bet) => {
-          const { selectedWinner, userId, score } = bet;
+          const { selectedWinner, userId, score,betScore } = bet; // i need to find betting bracketscore
           const user = await User.findById(userId).exec();
 
           if (!user) {
@@ -125,10 +134,14 @@ class bettingController {
           }
 
           let updatedScore = user.score;
+          let bracketScore = betScore;
+          
 
           if (roundSlug === "round-6") {
             if (selectedWinner.toString() === decidedWinner.toString()) {
-              updatedScore = score * 2; // Double the score
+              updatedScore += bracketScore * 2; // Double the score
+            } else{
+              updatedScore -= bracketScore;
             }
           } else {
             const points = await bettingController.calculatePoints(

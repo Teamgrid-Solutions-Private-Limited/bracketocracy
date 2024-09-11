@@ -18,10 +18,12 @@ const bettingSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  // score: {
-  //   type: Number,
+  betScore: {       // added to check the functionality in last round user can bet
+                   // the points they want to place bet it should be greater than zero and lesser than actual score
+    type: Number,
+    default: 0,
 
-  // },
+  },
   seasonId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "seasons", //reference from season need to create
