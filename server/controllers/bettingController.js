@@ -134,16 +134,16 @@ class bettingController {
           }
 
           let updatedScore = user.score;
-          let bracketScore = betScore;
-          let points =0;
+           
+          let points = 0;
           
 
           if (roundSlug === "round-6") {
             if (selectedWinner.toString() === decidedWinner.toString()) {
-              points = bracketScore * 2
+              points = betScore * 2
               updatedScore += points; // Double the score
             } else{
-              updatedScore -= bracketScore;
+              updatedScore -= betScore;
             }
           } else {
             const points = await bettingController.calculatePoints(
@@ -164,7 +164,7 @@ class bettingController {
 
           await Betting.findByIdAndUpdate(
             bet._id,
-            { points: points },
+            { points: points, updated: Date.now() }, // Update the `updated` field to reflect the change
             { new: true }
           ).exec();
         })
