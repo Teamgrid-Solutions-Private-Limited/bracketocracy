@@ -30,8 +30,9 @@ const authRoutes = require("./routes/authRoutes");
 const pushNotificationRoute = require("./routes/pushNotificationRoutes");
 const devicesRoute = require("./routes/deviceRoutes");
 
-const PORT = process.env.PORT || 6010;
+const PORT = process.env.PORT || 4000;
 const app = express();
+const backendUrl = process.env.BACKEND_URL;
 
 // Middleware
 // app.use(cookieSession({
@@ -52,6 +53,10 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use(cors({
+  origin: backendUrl,  // Allow requests from the frontend URL
+}));
 
 app.use(cors());
 app.use(express.json());
