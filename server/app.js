@@ -29,6 +29,7 @@ const rankRoute = require("./routes/rankRoutes");
 const authRoutes = require("./routes/authRoutes");
 const pushNotificationRoute = require("./routes/pushNotificationRoutes");
 const devicesRoute = require("./routes/deviceRoutes");
+const emailRoute = require("./routes/mailRoutes");
 
 const PORT = process.env.PORT || 4000;
 const app = express();
@@ -84,6 +85,7 @@ app.use("/setting", settingRoute);
 app.use("/rank", rankRoute);
 app.use("/notifications", pushNotificationRoute);
 app.use("/devices", devicesRoute);
+app.use("/email",emailRoute);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the homepage!");
