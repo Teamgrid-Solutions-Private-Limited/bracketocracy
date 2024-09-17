@@ -1,5 +1,44 @@
+// const mongoose = require("mongoose");
+
+// const roundSchema = mongoose.Schema({
+//   name: {
+//     type: String,
+//     required: true,
+//   },
+//   slug: {
+//     type: String,
+//   },
+//   playDate: {
+//     type: String,
+//     required: true,
+//   },
+//   biddingEndDate: {
+//     type: String,
+//     require: true,
+//   },
+//   roundNumber:{type:Number,required:true},
+//   status: {
+//     type: Boolean,
+//     default: true,
+//   },
+//   seasonId: {
+//     type: mongoose.Schema.Types.ObjectId, //reference to season collection
+//     ref: "seasons",
+//     required: true,
+//   },
+
+//   totalMatch: {
+//     type: Number,
+//   },
+//   created: { type: Date, default: Date.now },
+//   updated: { type: Date, default: Date.now },
+// });
+
+// const roundModel = mongoose.model("rounds", roundSchema);
+
+// module.exports = roundModel;
+
 const mongoose = require("mongoose");
- 
 
 const roundSchema = mongoose.Schema({
   name: {
@@ -8,31 +47,49 @@ const roundSchema = mongoose.Schema({
   },
   slug: {
     type: String,
+    unique: true, // Ensures slugs are unique to avoid conflicts
   },
   playDate: {
-    type: String,
+    type: Date, // Use Date type instead of String for better date handling
     required: true,
   },
   biddingEndDate: {
-    type: String,
-    require: true,
+    type: Date, // Use Date type instead of String
+    required: true,
   },
-  roundNumber:{type:Number,required:true},
+  roundNumber: {
+    type: Number,
+    required: true,
+  },
   status: {
-    type: Boolean,
-    default: true,
+    type: String, // Use string to represent different states
+    enum: ["upcoming", "ongoing", "completed"],
+    default: "upcoming", // Default to upcoming
   },
   seasonId: {
-    type: mongoose.Schema.Types.ObjectId, //reference to season collection
+    type: mongoose.Schema.Types.ObjectId, // Reference to season collection
     ref: "seasons",
     required: true,
   },
-
   totalMatch: {
     type: Number,
   },
-  created: { type: Date, default: Date.now },
-  updated: { type: Date, default: Date.now },
+  completed: {
+    type: Boolean, // To track if the round is completed
+    default: false,
+  },
+  winnerTeamId: {
+    type: mongoose.Schema.Types.ObjectId, // Optional: Store the winner of the final round (if applicable)
+    ref: "teams",
+  },
+  created: {
+    type: Date,
+    default: Date.now,
+  },
+  updated: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 const roundModel = mongoose.model("rounds", roundSchema);
