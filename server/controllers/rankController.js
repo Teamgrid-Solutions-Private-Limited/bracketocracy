@@ -1,39 +1,40 @@
 const Rank = require("../model/rankSchema");
 const User = require("../model/userSchema");
-const Season = require("../model/seasonSchema");
-const mongoose = require("mongoose");
  
  
 class RankController {
-  // Method to calculate and save ranks with logic for handling ties
   static calculateAndSaveRanks = async (seasonId) => {
     try {
-      // Fetch users and their scores
+      // Fetch users sorted by their scores in descending order
       const users = await User.find().sort({ score: -1 });
  
-      let currentRank = 1;
-      let previousScore = null;
+      let currentRank = 0;
+      let currentScore = null; // To track the last score
  
       const rankUpdates = users.map((user, index) => {
-        if (previousScore !== null && user.score < previousScore) {
-          currentRank = index + 1;
+        // If the user's score is different from the last score, increase the rank
+        if (user.score !== currentScore) {
+          currentRank += 1; // Move to the next rank if the score changes
         }
  
-        previousScore = user.score;
+        // Update the current score for comparison in the next iteration
+        currentScore = user.score;
  
+        // Prepare the rank update for each user
         return {
           userId: user._id,
-          seasonId,
+          seasonId: seasonId,
           rank: currentRank,
-          points: user.score, // Points can be directly the score or any computed value
-          achievedAt: new Date(),
+          points: user.score, // Points can be the user's score or other calculated values
+          created: new Date(),
+          updated: new Date(),
         };
       });
  
-      // Clear previous ranks for the season
+      // Clear existing ranks for the season
       await Rank.deleteMany({ seasonId });
  
-      // Save new ranks
+      // Insert the new ranks into the Rank model
       await Rank.insertMany(rankUpdates);
  
       console.log("Ranks calculated and saved successfully");
@@ -43,7 +44,7 @@ class RankController {
     }
   };
  
-  // GET request to retrieve ranks for a specific season and include scores in the response
+  // GET request to retrieve ranks for a specific season
   static getRanks = async (req, res) => {
     const { seasonId } = req.params;
  
@@ -52,20 +53,15 @@ class RankController {
     }
  
     try {
-      // Calculate and save ranks before retrieving them
+      // First, calculate and save ranks for the season
       await RankController.calculateAndSaveRanks(seasonId);
  
-      // Retrieve the ranks after calculation and include the score
+      // Fetch the calculated ranks
       const ranks = await Rank.find({ seasonId })
         .populate("userId", "userName email score")
         .sort({ rank: 1 });
  
-      const ranksWithScores = ranks.map(rank => ({
-        ...rank.toObject(),
-        score: rank.points, // Add score field from the points value
-      }));
- 
-      res.status(200).json(ranksWithScores);
+      res.status(200).json(ranks);
     } catch (error) {
       res.status(500).json({ message: "Error retrieving ranks" });
     }
@@ -73,4 +69,3 @@ class RankController {
 }
  
 module.exports = RankController;
- 
