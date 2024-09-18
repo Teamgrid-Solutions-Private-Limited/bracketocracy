@@ -13,9 +13,14 @@ const sponsorSchema = mongoose.Schema({
     type: String,
     required:true,
   },
+  // status: {
+  //   type: Number,
+  //   default:0,
+  // },
   status: {
-    type: Number,
-    default:0,
+    type: String,
+    enum: ['yes', 'no'], // Only allow 'yes' or 'no'
+    default: 'no',       // Default value set to 'no'
   },
   created: {
     type: Date,
