@@ -53,20 +53,22 @@ class RoundController {
   };
 
   // Initialize Round 1 for all zones
-  // Initialize Round 1 for all zones
   static initializeRoundOne = async (req, res) => {
     try {
-      // Define the zones manually
-      const zones = [
-        { zoneName: "Zone 1", slug: "zone-1" },
-        { zoneName: "Zone 2", slug: "zone-2" },
-        { zoneName: "Zone 3", slug: "zone-3" },
-        { zoneName: "Zone 4", slug: "zone-4" },
-      ];
+      // Fetch all active zones from the database
+      const zones = await Zone.find({ status: true }).select("zoneName slug");
+
+      if (!zones.length) {
+        return res.status(400).json({ message: "No active zones found." });
+      }
 
       // Loop over zones and create matches
       for (const zone of zones) {
-        const teams = await Team.find({ zoneName: zone.zoneName }); // Assuming teams have a `zoneName` field
+        // Find teams based on the zone name
+        const teams = await Team.find({ zoneId: zone._id }).populate({
+          path: "zoneId",
+          select: "zoneName", // Populate only the zoneName field
+        }); // Assuming teams have a `zoneName` field to link to the zone
 
         if (teams.length !== 16) {
           return res
