@@ -359,6 +359,7 @@ class userController {
           userName,
           firstName,
           lastName,
+          active,
         } = req.body;
  
         const userId = req.params.id;
@@ -417,6 +418,10 @@ class userController {
         if (req.body.lastName) {
           user.lastName = req.body.lastName;
         }
+        if(req.body.active)
+        {
+          user.active = req.body.active;
+        }
         // Update profile photo if uploaded
         if (req.file) {
           user.profilePhoto = `${upload_URL}${req.file.filename}`;
@@ -445,7 +450,7 @@ class userController {
           return res.status(400).json({ message: "Error uploading file" });
         }
    
-        const { email, userName, firstName, lastName } = req.body;
+        const { email, userName, firstName, lastName,active } = req.body;
         const userId = req.params.id;
    
         // Validate required fields
@@ -479,6 +484,10 @@ class userController {
         // Update last name if changed
         if (lastName) {
           user.lastName = lastName;
+        }
+        if(active)
+        {
+          user.active = active;
         }
    
         // Update profile photo if uploaded

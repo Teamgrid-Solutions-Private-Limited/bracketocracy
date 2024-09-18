@@ -29,8 +29,9 @@ const userSchema = new mongoose.Schema({
     ref: "roles",
   },
   active: {
-    type: Boolean,
-    default: true,
+    type: String,
+    enum: ['yes', 'no'], // Only allow 'yes' or 'no'
+    default: 'no',
   },
   authType: {
     type: Number,

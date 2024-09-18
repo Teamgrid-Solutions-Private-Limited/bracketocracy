@@ -56,27 +56,27 @@ class RoundController {
   // Initialize Round 1 for all zones
   static initializeRoundOne = async (req, res) => {
     try {
-      // Define the zones manually
-      const zones = [
-        { zoneName: "Zone 1", slug: "zone-1" },
-        { zoneName: "Zone 2", slug: "zone-2" },
-        { zoneName: "Zone 3", slug: "zone-3" },
-        { zoneName: "Zone 4", slug: "zone-4" },
-      ];
-
+      // Fetch all active zones from the database
+      const zones = await Zone.find({ status: true }).select("zoneName slug");
+ 
+      if (!zones.length) {
+        return res.status(400).json({ message: "No active zones found." });
+      }
+ 
       // Loop over zones and create matches
       for (const zone of zones) {
-        const teams = await Team.find({ zoneName: zone.zoneName }); // Assuming teams have a `zoneName` field
-
+        // Find teams based on the zone name
+        const teams = await Team.find({ zoneName: zone.zoneName }); // Assuming teams have a `zoneName` field to link to the zone
+ 
         if (teams.length !== 16) {
           return res
             .status(400)
             .json({ message: `${zone.zoneName} must have exactly 16 teams.` });
         }
-
+ 
         // Shuffle teams to randomize pairing
         const shuffledTeams = teams.sort(() => 0.5 - Math.random());
-
+ 
         // Create matches for round 1
         const matchPromises = [];
         for (let i = 0; i < shuffledTeams.length; i += 2) {
@@ -89,17 +89,17 @@ class RoundController {
           matchPromises.push(match.save());
         }
         await Promise.all(matchPromises); // Save all matches in parallel
-
+ 
         // Create and save the round
         const name = "Round 1";
         const playDate = new Date(); // Set playDate as per your logic, e.g., a week from now
         const biddingEndDate = new Date();
         biddingEndDate.setHours(biddingEndDate.getHours() + 1); // Example: bidding ends 1 hour after
-
+ 
         // Validate and prepare round details
         const slug = slugify(this.generateSlug(name), { lower: true });
         const roundNumber = this.generateNumber(name);
-
+ 
         const round = new Round({
           name,
           slug,
@@ -108,10 +108,10 @@ class RoundController {
           seasonId: req.body.seasonId, // Assuming seasonId is passed in request body
           roundNumber,
         });
-
+ 
         await round.save();
       }
-
+ 
       return res
         .status(201)
         .json({ message: "Round 1 initialized successfully for all zones" });
