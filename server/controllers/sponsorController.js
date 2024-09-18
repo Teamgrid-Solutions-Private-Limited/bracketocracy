@@ -117,6 +117,8 @@ class SponsorController {
         // Update fields if present
         sponsor.companyName = update.companyName || sponsor.companyName;
         sponsor.website = update.website || sponsor.website;
+        sponsor.status = update.status || sponsor.status;
+
 
         // Update logo if a new file is uploaded
         if (req.file) {
