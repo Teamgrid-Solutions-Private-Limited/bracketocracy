@@ -99,8 +99,10 @@ passport.use(
 passport.use(
   new LinkedInStrategy(
     {
-      clientID: process.env.LINKEDIN_CLIENT_ID,
-      clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
+      clientID: process.env.LINKEDIN_CLIENT_ID || "your-client-id-here",
+      clientSecret:
+        process.env.LINKEDIN_CLIENT_SECRET || "your-client-secret-here",
+
       callbackURL: "/auth/linkedin/callback",
       scope: ["r_liteprofile", "r_emailaddress"],
       state: true,
