@@ -7,8 +7,8 @@ class emailController {
             host: 'smtp.ethereal.email',
             port: 587,
             auth: {
-                user: 'norwood.kreiger@ethereal.email',
-                pass: 'CZ5BX7tHxj2XemYMzG'
+                 user: 'sigurd.jaskolski@ethereal.email',
+                 pass: 'QTM1XBZ4zc4TBKF5Sa'
             }
         });
     }
@@ -24,7 +24,7 @@ class emailController {
         }
 
         const mailOptions = {
-            from: 'norwood.kreiger@ethereal.email',
+            from: 'sigurd.jaskolski@ethereal.email',
             to: to,
             subject: 'Reset Password',
             text: 'hello world'

@@ -1,6 +1,6 @@
 const Rank = require("../model/rankSchema");
 const User = require("../model/userSchema");
- 
+const mongoose = require("mongoose");
  
 class RankController {
   static calculateAndSaveRanks = async (seasonId) => {
@@ -36,7 +36,7 @@ class RankController {
  
       // Insert the new ranks into the Rank model
       await Rank.insertMany(rankUpdates);
-
+ 
       console.log("Ranks calculated and saved successfully");
     } catch (error) {
       console.error("Error calculating ranks:", error);
@@ -47,11 +47,11 @@ class RankController {
   // GET request to retrieve ranks for a specific season
   static getRanks = async (req, res) => {
     const { seasonId } = req.params;
-
+ 
     if (!seasonId) {
       return res.status(400).json({ message: "Season ID is required" });
     }
-
+ 
     try {
       // First, calculate and save ranks for the season
       await RankController.calculateAndSaveRanks(seasonId);
