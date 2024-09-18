@@ -33,7 +33,8 @@ class RankController {
       // Clear existing ranks for the season
       await Rank.deleteMany({ seasonId });
 
-      n;
+      // Insert the new ranks into the Rank model
+      await Rank.insertMany(rankUpdates);
 
       console.log("Ranks calculated and saved successfully");
     } catch (error) {
