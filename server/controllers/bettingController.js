@@ -160,6 +160,8 @@ class bettingController {
             
             if (selectedWinner.toString() === decidedWinner.toString()) {
               updatedScore += points;  
+            } else {
+              points= 0;
             }
           }
 
