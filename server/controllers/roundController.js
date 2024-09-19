@@ -45,6 +45,7 @@ static generateNumber = (roundName) => {
   }
 };
 
+<<<<<<< HEAD
 // Static method to add a new round
 static addRound = async (req, res) => {
     try {
@@ -59,6 +60,30 @@ static addRound = async (req, res) => {
         // Validate required fields
         if (!name || !playDate || !biddingEndDate || !seasonId) {
             return res.status(400).json({ error: "All fields are required" });
+=======
+  // Initialize Round 1 for all zones
+  static initializeRoundOne = async (req, res) => {
+    try {
+      // Fetch all active zones from the database
+      const zones = await Zone.find({ status: true }).select("zoneName slug");
+
+      if (!zones.length) {
+        return res.status(400).json({ message: "No active zones found." });
+      }
+
+      // Loop over zones and create matches
+      for (const zone of zones) {
+        // Find teams based on the zone name
+        const teams = await Team.find({ zoneId: zone._id }).populate({
+          path: "zoneId",
+          select: "zoneName", // Populate only the zoneName field
+        }); // Assuming teams have a `zoneName` field to link to the zone
+
+        if (teams.length !== 16) {
+          return res
+            .status(400)
+            .json({ message: `${zone.zoneName} must have exactly 16 teams.` });
+>>>>>>> bracketocracy-saruk
         }
 
         // Validate and parse date fields

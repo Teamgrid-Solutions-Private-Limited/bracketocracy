@@ -3,7 +3,7 @@ const Team = require("../model/teamSchema");
 const mongoose = require("mongoose");
 const upload = require("../middleware/fileUpload");
 
-const BASE_URL = "http://localhost:6010/";
+const BASE_URL = "http://localhost:4000/";
 const upload_URL = BASE_URL + "images/";
 
 class TeamController {
@@ -19,17 +19,23 @@ class TeamController {
 
   static addTeam = async (req, res) => {
     try {
+      // Handle file upload asynchronously
       await TeamController.handleFileUpload(req, res, async () => {
-        const { name, status, seasonId, seed } = req.body;
+        const { name, status, seasonId, seed, zoneName } = req.body;
 
         // Validate required fields
         if (!name || !status || !seed) {
           return res.status(400).json({ message: "Missing required fields" });
         }
 
-        // Validate seasonId
+        // Validate seasonId (ensure it is a valid ObjectId)
         if (seasonId && !mongoose.Types.ObjectId.isValid(seasonId)) {
           return res.status(400).json({ message: "Invalid seasonId" });
+        }
+
+        // Validate zoneName based on the expected type (assuming it's a string here)
+        if (zoneName && !mongoose.Types.ObjectId.isValid(zoneName)) {
+          return res.status(400).json({ message: "Invalid zoneName ID" });
         }
 
         try {
@@ -37,22 +43,23 @@ class TeamController {
             name,
             seed,
             logo: req.file ? `${upload_URL}${req.file.filename}` : undefined,
-            logo: req.file ? `${upload_URL}${req.file.filename}` : undefined,
             seasonId,
-            status: status || 1, // Default value for status
+            zoneName,
             status: status || 1, // Default value for status
           });
 
           const result = await team.save();
-          res
+          return res
             .status(201)
             .json({ message: "Team created successfully", data: result });
         } catch (err) {
-          res.status(500).json({ message: "Error creating team" });
+          console.error("Error creating team:", err);
+          return res.status(500).json({ message: "Error creating team" });
         }
       });
     } catch (err) {
-      res.status(500).json({ message: "Error creating team" });
+      console.error("Error in addTeam controller:", err);
+      return res.status(500).json({ message: "Error creating team" });
     }
   };
 

@@ -119,19 +119,16 @@ class SponsorController {
         sponsor.website = update.website || sponsor.website;
         sponsor.status = update.status || sponsor.status;
 
-
         // Update logo if a new file is uploaded
         if (req.file) {
           sponsor.logo = `${upload_URL}${req.file.filename}`;
         }
 
         const updatedSponsor = await sponsor.save();
-        res
-          .status(200)
-          .json({
-            message: "Sponsor updated successfully",
-            data: updatedSponsor,
-          });
+        res.status(200).json({
+          message: "Sponsor updated successfully",
+          data: updatedSponsor,
+        });
       });
     } catch (err) {
       SponsorController.handleError(res, err, "Error updating sponsor");
