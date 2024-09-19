@@ -1,7 +1,7 @@
 const Sponsor = require("../model/sponsorSchema");
 const upload = require("../middleware/fileUpload");
 
-const BASE_URL = "http://localhost:6010/";
+const BASE_URL = "http://localhost:4000/";
 const upload_URL = BASE_URL + "images/";
 
 class SponsorController {
