@@ -1,7 +1,7 @@
 const Sponsor = require("../model/sponsorSchema");
 const upload = require("../middleware/fileUpload");
 
-const BASE_URL = "http://localhost:6010/";
+const BASE_URL = "http://localhost:4000/";
 const upload_URL = BASE_URL + "images/";
 
 class SponsorController {
@@ -119,19 +119,16 @@ class SponsorController {
         sponsor.website = update.website || sponsor.website;
         sponsor.status = update.status || sponsor.status;
 
-
         // Update logo if a new file is uploaded
         if (req.file) {
           sponsor.logo = `${upload_URL}${req.file.filename}`;
         }
 
         const updatedSponsor = await sponsor.save();
-        res
-          .status(200)
-          .json({
-            message: "Sponsor updated successfully",
-            data: updatedSponsor,
-          });
+        res.status(200).json({
+          message: "Sponsor updated successfully",
+          data: updatedSponsor,
+        });
       });
     } catch (err) {
       SponsorController.handleError(res, err, "Error updating sponsor");
