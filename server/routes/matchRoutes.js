@@ -1,20 +1,23 @@
 const express = require("express");
- 
-const {
-  createMatch,
-  getMatchById,
-  updateMatch,
-  deleteMatch,
-  finalScores,
-  getMatch,
-} = require("../controllers/matchController");
-
 const router = express.Router();
-router.post("/match/create", createMatch);
-router.get("/match/search/:id", getMatchById);
-router.delete("/match/delete/:id", deleteMatch);
-router.put("/match/update/:id",updateMatch);
-router.put("/match/final/:id",finalScores)
-router.get("/match/view",getMatch);
- 
+const MatchController = require("../controllers/matchController");
+
+// Route to create matches for the first round manually
+router.post("/matches/playin", MatchController.createMatchesForFirstRound);
+
+// Route to progress to the next round
+router.post("/matches/progress", MatchController.progressToNextRound);
+
+// Route to update the final scores of a match
+router.put("/matches/:id/scores", MatchController.finalScores);
+
+// Route to get details of a single match by ID
+router.get("/matches/:id", MatchController.getMatchById);
+
+// Route to delete a match by ID
+router.delete("/matches/:id", MatchController.deleteMatch);
+
+// Route to get all matches with team and round details
+router.get("/matches", MatchController.getAllMatches);
+
 module.exports = router;

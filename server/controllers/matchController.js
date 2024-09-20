@@ -7,90 +7,247 @@ const Season = require("../model/seasonSchema");
 const Zone = require("../model/zoneSchema");
 const bettingController = require("./bettingController");
 
-class matchController {
-  
- static createMatch = async (req, res) => {
+class BadRequestError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "BadRequestError";
+  }
+}
+
+class MatchController {
+  // Create matches for the first round manually
+  static createMatchesForFirstRound = async (req, res) => {
     try {
-      
+      const { seasonId } = req.body;
 
-      const {
-        teamOneId,
-        teamTwoId,
-        teamOneScore = 0,
-        teamTwoScore = 0,
-        status = 0,
-        roundSlug,
-        zoneSlug,
-        seasonId,
-        matchNo,
-      } = req.body;
-
-      // Validate that IDs are present
-      if (!teamOneId || !teamTwoId) {
-        return res.status(400).json({ message: "Team IDs are required" });
+      // Validate that seasonId is present
+      if (!seasonId) {
+        return res.status(400).json({ message: "Season is required" });
       }
 
-      // Fetch documents from the database
-      const teamOne = await Team.findById(teamOneId).exec();
-      const teamTwo = await Team.findById(teamTwoId).exec();
-      const season = seasonId ? await Season.findById(seasonId).exec() : null;
-      const round = roundSlug
-        ? await Round.findOne({ slug: roundSlug }).exec()
-        : null;
-      const zone = zoneSlug
-        ? await Zone.findOne({ slug: zoneSlug }).exec()
-        : null;
+      // Fetch 16 teams and populate zone details (slug)
+      const teams = await Team.find({ seasonId })
+        .limit(16)
+        .populate({ path: "zoneId", select: "slug" }) // Populate the zoneId to get the zone's slug
+        .exec();
 
-      // Log fetched documents
-      // console.log("Fetched Documents:", {
-      //   teamOne,
-      //   teamTwo,
-      //   season,
-      //   round,
-      //   zone,
-      // });
-
-      // Check if teams exist
-      if (!teamOne || !teamTwo) {
-        return res.status(404).json({ message: "One or both teams not found" });
+      if (teams.length < 16) {
+        return res
+          .status(400)
+          .json({ message: "Not enough teams in this season" });
       }
 
-      // Create and save the match document
-      const match = new Match({
-        teamOneId,
-        teamTwoId,
-        teamOneScore,
-        teamTwoScore,
-        status,
-        roundSlug,
-        zoneSlug,
-        seasonId,
-        matchNo,
+      // Ensure all teams are from the same zone and get the zoneSlug
+      const zoneSlug = teams[0].zoneId.slug; // Access the populated slug field from the zone
+
+      // Create matches for the first round
+      const matches = [];
+      for (let i = 0; i < teams.length; i += 2) {
+        const match = new Match({
+          teamOneId: teams[i]._id,
+          teamTwoId: teams[i + 1]._id,
+          teamOneScore: 0,
+          teamTwoScore: 0,
+          status: "upcoming",
+          zoneSlug: zoneSlug, // Set zoneSlug from the populated zone data
+          seasonId,
+          matchNo: Math.floor(i / 2) + 1,
+        });
+        const savedMatch = await match.save();
+        matches.push(savedMatch);
+      }
+
+      res.status(201).json({
+        message: `Matches for Round 1 in zone ${zoneSlug} created successfully`,
+        matches,
       });
-
-      const savedMatch = await match.save();
-
-      // Respond with the saved match
-      res
-        .status(201)
-        .json({ message: "Match created successfully", savedMatch });
     } catch (error) {
-      // Log error details
-      console.error("Error occurred while creating match:", error);
-
-      // Respond with error message
+      console.error("Error occurred while creating matches:", error);
       res.status(500).json({ error: "Internal Server Error" });
     }
+  };
+
+  // Handle match and automatically progress
+  static handleMatchAndProgress = async (
+    matchId,
+    teamOneScore,
+    teamTwoScore
+  ) => {
+    // Step 1: Update match scores
+    const updatedMatch = await MatchController.finalScores({
+      params: { id: matchId },
+      body: { teamOneScore, teamTwoScore },
+    });
+
+    // Step 2: If it's the championship round, exit
+    if (updatedMatch.roundSlug === "championship") {
+      return;
+    }
+
+    // Step 3: Progress to the next round
+    const nextRoundSlug = MatchController.getNextRoundSlug(
+      updatedMatch.roundSlug
+    );
+    await MatchController.progressToNextRound({
+      body: {
+        currentRoundSlug: updatedMatch.roundSlug,
+        nextRoundSlug,
+        zoneSlug: updatedMatch.zoneSlug,
+        seasonId: updatedMatch.seasonId,
+      },
+    });
+  };
+
+  // Progress to the next round
+  static progressToNextRound = async (req, res) => {
+    try {
+      const { currentRoundSlug, nextRoundSlug, zoneSlug, seasonId } = req.body;
+
+      // Validate required fields
+      if (!currentRoundSlug || !nextRoundSlug || !zoneSlug || !seasonId) {
+        throw new BadRequestError("Missing required fields.");
+      }
+
+      const completedMatches = await Match.find({
+        roundSlug: currentRoundSlug,
+        teamOneScore: { $ne: null },
+        teamTwoScore: { $ne: null },
+        decidedWinner: { $exists: true },
+      });
+
+      if (!completedMatches.length) {
+        return res
+          .status(400)
+          .json({ message: "No completed matches in the current round." });
+      }
+
+      const winners = completedMatches
+        .map((match) => match.decidedWinner)
+        .filter(Boolean);
+
+      // Handle bye if odd number of winners
+      let byeTeam = null;
+      if (winners.length % 2 !== 0) {
+        byeTeam = winners.pop(); // Remove one team for a bye
+      }
+
+      const nextRoundMatches = [];
+      for (let i = 0; i < winners.length; i += 2) {
+        const match = new Match({
+          teamOneId: winners[i],
+          teamTwoId: winners[i + 1],
+          teamOneScore: 0,
+          teamTwoScore: 0,
+          status: "upcoming",
+          roundSlug: nextRoundSlug,
+          zoneSlug,
+          seasonId,
+          matchNo: Math.floor(i / 2) + 1,
+        });
+
+        const savedMatch = await match.save();
+        nextRoundMatches.push(savedMatch);
+      }
+
+      // Handle bye team
+      if (byeTeam) {
+        const match = new Match({
+          teamOneId: byeTeam,
+          teamTwoId: null,
+          teamOneScore: 0,
+          teamTwoScore: 0,
+          status: "bye",
+          roundSlug: nextRoundSlug,
+          zoneSlug,
+          seasonId,
+          matchNo: Math.floor(winners.length / 2) + 1,
+        });
+
+        const savedByeMatch = await match.save();
+        nextRoundMatches.push(savedByeMatch);
+      }
+
+      res.status(201).json({
+        message: `Matches for ${nextRoundSlug} created successfully`,
+        matches: nextRoundMatches,
+      });
+    } catch (error) {
+      console.error(
+        "Error occurred while progressing to the next round:",
+        error
+      );
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  };
+
+  // Get the next round slug
+  static getNextRoundSlug = (currentRoundSlug) => {
+    const rounds = {
+      round1: "round2",
+      round2: "round3",
+      round3: "round4",
+      round4: "round5",
+      round5: "championship",
+    };
+    return rounds[currentRoundSlug] || null;
+  };
+
+  // Update match scores and determine winner
+  static finalScores = async (req, res) => {
+    try {
+      const { teamOneScore, teamTwoScore } = req.body;
+      const { id } = req.params;
+
+      if (!id || teamOneScore === undefined || teamTwoScore === undefined) {
+        return res
+          .status(400)
+          .json({ message: "Match ID and scores are required" });
+      }
+
+      const match = await Match.findById(id).exec();
+      if (!match) {
+        return res.status(404).json({ message: "Match not found" });
+      }
+
+      match.teamOneScore = teamOneScore;
+      match.teamTwoScore = teamTwoScore;
+      match.decidedWinner =
+        teamOneScore > teamTwoScore
+          ? match.teamOneId
+          : teamTwoScore > teamOneScore
+          ? match.teamTwoId
+          : null;
+      match.status = "completed";
+
+      const updatedMatch = await match.save();
+
+      // Handle betting logic
+      await bettingController.handleMatchEnd({ params: { matchId: id } }, res);
+      return updatedMatch; // Return updated match details
+    } catch (error) {
+      console.error("Error occurred while updating match:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  };
+
+  // Function to determine the next round slug
+  static getNextRoundSlug = (currentRoundSlug) => {
+    const rounds = {
+      round1: "round2",
+      round2: "round3",
+      round3: "round4",
+      round4: "round5",
+      round5: "final",
+    };
+    return rounds[currentRoundSlug] || null;
   };
 
   // Get a single match by ID
   static getMatchById = async (req, res) => {
     try {
-      const match = await Match.findById(req.params.id);
-      // .populate("teamOneId")
-      // .populate("teamTwoId")
-      // .populate("decidedWinner")
-      // .populate("seasonId");
+      const match = await Match.findById(req.params.id).populate(
+        "teamOneId teamTwoId decidedWinner seasonId"
+      );
 
       if (!match) {
         return res.status(404).json({ message: "Match not found" });
@@ -101,62 +258,6 @@ class matchController {
     }
   };
 
- 
-
-  static finalScores = async (req, res) => {
-    try {
-      const { teamOneScore, teamTwoScore } = req.body;
-      const { id } = req.params;
-  
-      // console.log(`ID: ${id}`);
-      // console.log(`Team One Score: ${teamOneScore}`);
-      // console.log(`Team Two Score: ${teamTwoScore}`);
-  
-      // Validate that ID and scores are present
-      if (!id || teamOneScore === undefined || teamTwoScore === undefined) {
-        return res.status(400).json({ message: "Match ID and scores are required" });
-      }
-  
-      // Find the match
-      const match = await Match.findById(id).exec();
-      if (!match) {
-        return res.status(404).json({ message: "Match not found" });
-      }
-  
-      // Update scores
-      match.teamOneScore = teamOneScore;
-      
-      match.teamTwoScore = teamTwoScore;
-     
-  
-      // Determine the decided winner based on updated scores
-      let decidedWinner = null;
-      if (teamOneScore > teamTwoScore) {
-        decidedWinner = match.teamOneId.toString();
-      } else if (teamTwoScore > teamOneScore) {
-        decidedWinner = match.teamTwoId.toString();
-      } else {
-        decidedWinner = null; // Or handle ties if applicable
-      }
-  
-      // console.log(`Decided Winner (ID): ${decidedWinner}`);
-  
-      // Update decidedWinner
-      match.decidedWinner = decidedWinner;
-  
-      // Save the updated match
-      const updatedMatch = await match.save();
-
-      await bettingController.handleMatchEnd({ params: { matchId: id } }, res);
-  
-      // Respond with the updated match
-      res.status(200).json({ message: "Match updated successfully", updatedMatch });
-    } catch (error) {
-      console.error("Error occurred while updating match:", error);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  };
-  
   // Delete a match by ID
   static deleteMatch = async (req, res) => {
     try {
@@ -170,148 +271,46 @@ class matchController {
     }
   };
 
-  static updateMatch = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const {
-        teamOneId,
-        teamTwoId,
-        teamOneScore,
-        teamTwoScore,
-        status,
-        roundSlug,
-        zoneSlug,
-        seasonId,
-        matchNo,
-      } = req.body;
-
-      // Find the match by ID
-      const match = await Match.findById(id);
-      if (!match) {
-        return res.status(404).json({ error: "Match not found" });
-      }
-
-      // Validate and check existence of related entities
-      if (teamOneId && !(await Team.findById(teamOneId))) {
-        return res.status(404).json({ error: "Team One not found" });
-      }
-
-      if (teamTwoId && !(await Team.findById(teamTwoId))) {
-        return res.status(404).json({ error: "Team Two not found" });
-      }
-
-      if (seasonId && !(await Season.findById(seasonId))) {
-        return res.status(404).json({ error: "Season not found" });
-      }
-
-      if (roundSlug && !(await  Round.findOne({ slug: roundSlug }))) {
-        return res.status(404).json({ error: "Round not found" });
-      }
-
-      if (zoneSlug && !(await  Zone.findOne({ slug: zoneSlug }))) {
-        return res.status(404).json({ error: "Zone not found" });
-      }
-
-      if (teamOneId && teamTwoId && teamOneId === teamTwoId) {
-        return res
-          .status(400)
-          .json({ error: "Team One and Team Two cannot be the same" });
-      }
-
-      // Perform the update
-      const updatedMatch = await Match.findByIdAndUpdate(
-        id,
-        {
-          $set: {
-            teamOneId,
-            teamTwoId,
-            status,
-
-            matchNo,
-
-            roundSlug,
-            zoneSlug,
-            seasonId,
-            teamOneScore: teamOneScore || match.teamOneScore, // Preserve existing scores if not updated
-            teamTwoScore: teamTwoScore || match.teamTwoScore, // Preserve existing scores if not updated
-          },
-        },
-        { new: true }
-      );
-
-      // Respond with the updated match
-      res
-        .status(200)
-        .json({ message: "Update done successfully", info: updatedMatch });
-    } catch (err) {
-      // Log error details
-      console.error("Error updating match:", err);
-
-      // Respond with an error message
-      res.status(500).json({ error: err.message });
-    }
-  };
-
-  // static getMatch = async(req,res)=>{
-  //   try{
-  //     const show = await Match.find();
-  //     res.status(200).json({ message:"match retrive successfully",info:show});
-  //   }catch(error)
-  //   {
-  //     res.status(500).json({error: error.message});
-  //   }
-   
-  // }
-
- 
-
-  static getMatch = async (req, res) => {
+  // Get all matches with details
+  static getAllMatches = async (req, res) => {
     try {
       const matches = await Match.aggregate([
         {
           $lookup: {
-            from: 'teams',  
-            localField: 'teamOneId',
-            foreignField: '_id',
-            as: 'teamOne'
-          }
+            from: "teams",
+            localField: "teamOneId",
+            foreignField: "_id",
+            as: "teamOne",
+          },
         },
         {
           $lookup: {
-            from: 'teams',  
-            localField: 'teamTwoId',
-            foreignField: '_id',
-            as: 'teamTwo'
-          }
+            from: "teams",
+            localField: "teamTwoId",
+            foreignField: "_id",
+            as: "teamTwo",
+          },
         },
         {
           $lookup: {
-            from: 'zones',  
-            localField: 'zoneSlug',
-            foreignField: 'slug',
-            as: 'zone'
-          }
+            from: "zones",
+            localField: "zoneSlug",
+            foreignField: "slug",
+            as: "zone",
+          },
         },
         {
           $lookup: {
-            from: 'rounds',  
-            localField: 'roundSlug',
-            foreignField: 'slug',
-            as: 'round'
-          }
+            from: "rounds",
+            localField: "roundSlug",
+            foreignField: "slug",
+            as: "round",
+          },
         },
-        {
-          $unwind: { path: '$teamOne', preserveNullAndEmptyArrays: true }
-        },
-        {
-          $unwind: { path: '$teamTwo', preserveNullAndEmptyArrays: true }
-        },
-        {
-          $unwind: { path: '$zone', preserveNullAndEmptyArrays: true }
-        },
-        {
-          $unwind: { path: '$round', preserveNullAndEmptyArrays: true }
-        },
+        { $unwind: { path: "$teamOne", preserveNullAndEmptyArrays: true } },
+        { $unwind: { path: "$teamTwo", preserveNullAndEmptyArrays: true } },
+        { $unwind: { path: "$zone", preserveNullAndEmptyArrays: true } },
+        { $unwind: { path: "$round", preserveNullAndEmptyArrays: true } },
         {
           $project: {
             _id: 1,
@@ -328,34 +327,33 @@ class matchController {
             teamOne: {
               _id: 1,
               name: 1,
-              logo: 1
+              logo: 1,
             },
             teamTwo: {
               _id: 1,
               name: 1,
-              logo: 1
+              logo: 1,
             },
             zone: {
               name: 1,
-              slug: 1
+              slug: 1,
             },
             round: {
               number: 1,
-              slug: 1
-            }
-          }
-        }
+              slug: 1,
+            },
+          },
+        },
       ]);
-  
-      // Send response with populated matches
-      res.status(200).json({ message: "Match retrieved successfully", info: matches });
+
+      res
+        .status(200)
+        .json({ message: "Matches retrieved successfully", info: matches });
     } catch (error) {
-      console.error('Error fetching matches:', error); // Log error for debugging
-      res.status(500).json({ error: error.message }); // Send error response
+      console.error("Error fetching matches:", error);
+      res.status(500).json({ error: error.message });
     }
   };
-  
- 
-
 }
-module.exports = matchController;
+
+module.exports = MatchController;

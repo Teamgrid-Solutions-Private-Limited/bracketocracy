@@ -19,9 +19,10 @@ const teamSchema = mongoose.Schema({
     type: mongoose.Types.ObjectId,
     ref: "seasons",
   },
-  zoneId: {
-    type: mongoose.Types.ObjectId,
-    ref: "zones",
+  zoneSlug: {
+    type: mongoose.Schema.ObjectId,
+    required: true,
+    ref: "zones", // Assuming zoneSlug is used in controller
   },
   seed: {
     type: Number,

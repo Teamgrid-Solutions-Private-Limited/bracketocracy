@@ -22,10 +22,12 @@ const matchSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "teams",
   },
-  status: { type: Boolean, default: true },
-  roundSlug: {
+  status: {
     type: String,
-  },
+    enum: ["upcoming", "completed", "bye"],
+    default: "upcoming",
+  }, // Change this from Boolean to String
+
   zoneSlug: {
     type: String,
   },
