@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
   active: {
     type: String,
     enum: ['yes', 'no'], // Only allow 'yes' or 'no'
-    default: 'no',
+    default: 'yes',
   },
   authType: {
     type: Number,
