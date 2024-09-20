@@ -3,28 +3,26 @@ const Match = require("../model/matchSchema");
 const User = require("../model/userSchema");
 const Season = require("../model/seasonSchema");
 const Round = require("../model/roundSchema");
-const Team = require("../model/teamSchema");  
+const Team = require("../model/teamSchema");
 
 class bettingController {
- 
+
   static placeBet = async (req, res) => {
     try {
-      const { matchId, selectedWinner, seasonId, userId,betScore } = req.body;
+      const { matchId, selectedWinner, seasonId, userId, betScore } = req.body;
 
       if (!matchId || !selectedWinner || !seasonId || !userId) {
         return res.status(400).json({ message: "All fields are required" });
       }
-        const user = await User.findById(userId);
-        if(!user)
-        {
-          return res.status(400).json({message:"user not found"});
-        }
-      if(betScore > user.score || betScore < 0)
-      {
-        return res.status(400).json({message:"bet should be greater than 0 and lesser than actual score"});
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(400).json({ message: "user not found" });
+      }
+      if (betScore > user.score || betScore < 0) {
+        return res.status(400).json({ message: "bet should be greater than 0 and lesser than actual score" });
       }
 
-       
+
       const existingBet = await Betting.findOne({ matchId, userId }).exec();
       if (existingBet) {
         return res
@@ -33,18 +31,18 @@ class bettingController {
       }
 
       // Verify references
-      const [match,season] = await Promise.all([
+      const [match, season] = await Promise.all([
         Match.findById(matchId).exec(),
-        
+
         Season.findById(seasonId).exec(),
       ]);
 
       if (!match) return res.status(404).json({ message: "Match not found" });
-      
+
       if (!season) return res.status(404).json({ message: "Season not found" });
 
 
-      const bet = new Betting({ matchId, userId, selectedWinner, seasonId,betScore });
+      const bet = new Betting({ matchId, userId, selectedWinner, seasonId, betScore });
       const savedBet = await bet.save();
 
       res.status(201).json({ message: "Bet placed successfully", savedBet });
@@ -65,7 +63,7 @@ class bettingController {
       const round = await Round.findOne({ slug: roundSlug }).exec();
       if (!round) return 0;
 
-       
+
 
       let points = 0;
       switch (round.roundNumber) {
@@ -94,11 +92,11 @@ class bettingController {
           points = 0;
           break;
       }
-      
+
 
       return points;
-       
-      
+
+
     } catch (error) {
       console.error("Error calculating points:", error.message);
       return 0;
@@ -110,83 +108,64 @@ class bettingController {
       const match = await Match.findById(matchId)
         .populate("decidedWinner")
         .exec();
+
       if (!match) {
         console.error("Match not found");
         return;
       }
 
-      const decidedWinner = match.decidedWinner;
-      const roundSlug = match.roundSlug;
-
+      const { decidedWinner, roundSlug } = match;
       const bets = await Betting.find({ matchId })
         .populate("userId")
         .populate("selectedWinner")
         .exec();
 
-      await Promise.all(
-        bets.map(async (bet) => {
-          const { selectedWinner, userId, score,betScore } = bet;  
-          const user = await User.findById(userId).exec();
+      await Promise.all(bets.map(async (bet) => {
+        const { selectedWinner, userId, betScore } = bet;
+        const user = await User.findById(userId).exec();
 
-          if (!user) {
-            console.error("User not found for ID:", userId);
-            return;
+        if (!user) {
+          console.error("User not found for ID:", userId);
+          return;
+        }
+
+        if (!selectedWinner) {
+          console.error("Selected winner not found for bet ID:", bet._id);
+          return;
+        }
+
+        let updatedScore = user.score;
+        let points = 0;
+
+        if (roundSlug === "round-6") {
+          points = (selectedWinner.toString() === decidedWinner.toString())
+            ? betScore * 2
+            : -betScore;
+          updatedScore += points;
+        } else {
+          if (selectedWinner.toString() === decidedWinner.toString()) {
+            points = await bettingController.calculatePoints(roundSlug, selectedWinner);
+            updatedScore += points;
           }
 
-          if (!selectedWinner) {
-            console.error("Selected winner not found for bet ID:", bet._id);
-            return;
-          }
+        }
 
-          let updatedScore = user.score;
-           
-          let points = 0;
-          
-
-          if (roundSlug === "round-6") {
-            if (selectedWinner.toString() === decidedWinner.toString()) {
-              points = betScore * 2
-              updatedScore += points; // Double the score
-            } else{
-              points =-betScore
-              updatedScore -= points;
-            }
-          } else {
-             points = await bettingController.calculatePoints(
-              roundSlug,
-              selectedWinner
-            );
-            
-            
-            if (selectedWinner.toString() === decidedWinner.toString()) {
-              updatedScore += points;  
-            } else {
-              points= 0;
-            }
-          }
-
-       
-  
- 
-
-
-          await User.findByIdAndUpdate(
-            userId,
-            { score: updatedScore },
-            { new: true }
-          ).exec(); // Update user score
-
-          await Betting.findByIdAndUpdate(
-            bet._id,
-            { points: points, updated: Date.now() },  
-            { new: true }
-          ).exec();
-        })
-      );
+        await User.findByIdAndUpdate(
+          userId,
+          { score: updatedScore },
+          { new: true }
+        ).exec();
+        await Betting.findByIdAndUpdate(
+          bet._id,
+          { points, updated: Date.now() },
+          { new: true }
+        ).exec();
+      }));
     } catch (error) {
       console.error("Error updating betting results:", error.message);
     }
   };
+
 
   // Handle end of match
   static handleMatchEnd = async (req) => {
@@ -198,9 +177,9 @@ class bettingController {
 
       await bettingController.updateBettingResults(matchId);
       console.log(`Handling end of match with ID: ${matchId}`);
-     
+
     } catch (error) {
-      
+
       console.error("Error handling match end:", error);
       throw new Error("Error handling match end");
     }
