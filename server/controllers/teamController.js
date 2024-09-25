@@ -3,8 +3,8 @@ const Team = require("../model/teamSchema");
 const mongoose = require("mongoose");
 const upload = require("../middleware/fileUpload");
 
-const BASE_URL = "http://localhost:4000/";
-const upload_URL = BASE_URL + "images/";
+const BASE_URL = process.env.BASE_URL;
+const UPLOAD_URL = `${BASE_URL}images/`;
 
 class TeamController {
   static handleFileUpload = (req, res, next) => {

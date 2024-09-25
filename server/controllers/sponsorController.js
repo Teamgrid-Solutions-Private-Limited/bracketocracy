@@ -1,8 +1,8 @@
 const Sponsor = require("../model/sponsorSchema");
 const upload = require("../middleware/fileUpload");
 
-const BASE_URL = "http://localhost:4000/";
-const upload_URL = BASE_URL + "images/";
+const BASE_URL = process.env.BASE_URL;
+const UPLOAD_URL = `${BASE_URL}images/`;
 
 class SponsorController {
   static handleError = (
@@ -42,7 +42,7 @@ class SponsorController {
           const sponsor = new Sponsor({
             companyName,
             website,
-            logo: req.file ? `${upload_URL}${req.file.filename}` : undefined,
+            logo: req.file ? `${UPLOAD_URL}${req.file.filename}` : undefined,
           });
 
           const result = await sponsor.save();

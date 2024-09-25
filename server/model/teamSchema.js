@@ -19,7 +19,7 @@ const teamSchema = mongoose.Schema({
     type: mongoose.Types.ObjectId,
     ref: "seasons",
   },
-  zoneSlug: {
+  zoneId: {
     type: mongoose.Schema.ObjectId,
     required: true,
     ref: "zones", // Assuming zoneSlug is used in controller

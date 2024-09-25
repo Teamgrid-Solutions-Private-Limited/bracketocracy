@@ -6,10 +6,10 @@ const upload = require("../middleware/fileUpload");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Role = require("../model/roleSchema");
- 
-const BASE_URL = "http://localhost:6010/";
-const upload_URL = BASE_URL + "images/";
- 
+
+const BASE_URL = process.env.BASE_URL;
+const UPLOAD_URL = `${BASE_URL}images/`;
+
 class userController {
   // const adduser = async (req, res) => {
   //   try {
@@ -18,26 +18,26 @@ class userController {
   //         console.error("Error uploading file:", err);
   //         return res.status(400).json({ message: "Error uploading file" });
   //       }
- 
+
   //       const { email, password, userName, firstName, lastName, roleId, active } =
   //         req.body;
- 
+
   //       // Validate required fields
   //       if (!password || !userName || !firstName || !lastName) {
   //         console.error("Missing required fields");
   //         return res.status(400).json({ message: "Missing required fields" });
   //       }
- 
+
   //       // Validate roleId
   //       if (!mongoose.Types.ObjectId.isValid(roleId)) {
   //         console.error("Invalid roleId");
   //         return res.status(400).json({ message: "Invalid roleId" });
   //       }
- 
+
   //       // Hash password using bcrypt
   //       const salt = await bcrypt.genSalt(10);
   //       const hashedPassword = await bcrypt.hash(password, salt);
- 
+
   //       try {
   //         const user = new userModel({
   //           password: hashedPassword,
@@ -49,7 +49,7 @@ class userController {
   //           roleId,
   //           active: active || 1, // set default value for active field
   //         });
- 
+
   //         await user.save();
   //         res.status(201).json(user);
   //       } catch (err) {
@@ -62,12 +62,12 @@ class userController {
   //     res.status(500).json({ message: "Error creating user" });
   //   }
   // };
- 
+
   //here is the optional for photo upload ------------
- 
+
   // here this is the code for only register field to add for signup---
   //required field like only username,firstname,lastname,password
- 
+
   static addUser = async (req, res) => {
     try {
       upload.single("profilePhoto")(req, res, async (err) => {
@@ -75,7 +75,7 @@ class userController {
           console.error("Error uploading file:", err);
           return res.status(400).json({ message: "Error uploading file" });
         }
- 
+
         const {
           email,
           password,
@@ -85,10 +85,10 @@ class userController {
           roleId,
           active,
         } = req.body;
- 
+
         // Initialize user object
         const user = {};
- 
+
         // Validate and set required fields
         if (!userName) {
           console.error("Missing required field: userName");
@@ -96,28 +96,28 @@ class userController {
             .status(400)
             .json({ message: "Missing required field: userName" });
         }
- 
+
         if (!firstName) {
           console.error("Missing required field: firstName");
           return res
             .status(400)
             .json({ message: "Missing required field: firstName" });
         }
- 
+
         if (!lastName) {
           console.error("Missing required field: lastName");
           return res
             .status(400)
             .json({ message: "Missing required field: lastName" });
         }
- 
+
         if (!password) {
           console.error("Missing required field: password");
           return res
             .status(400)
             .json({ message: "Missing required field: password" });
         }
- 
+
         // Check if userName or email already exists
         try {
           const existingUser = await userModel.findOne({
@@ -125,7 +125,9 @@ class userController {
           });
           if (existingUser) {
             if (existingUser.userName === userName) {
-              return res.status(400).json({ message: "Username already exists" });
+              return res
+                .status(400)
+                .json({ message: "Username already exists" });
             }
             if (existingUser.email === email) {
               return res.status(400).json({ message: "Email already exists" });
@@ -135,17 +137,17 @@ class userController {
           console.error("Error checking existing user:", err);
           return res.status(500).json({ message: "Error checking user" });
         }
- 
+
         // Hash password using bcrypt
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         user.password = hashedPassword;
- 
+
         // Set fields
         user.userName = userName;
         user.firstName = firstName;
         user.lastName = lastName;
- 
+
         if (email) {
           user.email = email;
         }
@@ -159,12 +161,12 @@ class userController {
         if (active !== undefined) {
           user.active = active;
         }
- 
+
         // Set profile photo if uploaded
         if (req.file) {
-          user.profilePhoto = `${upload_URL}${req.file.filename}`;
+          user.profilePhoto = `${UPLOAD_URL}${req.file.filename}`;
         }
- 
+
         try {
           const newUser = new userModel(user);
           await newUser.save();
@@ -179,31 +181,31 @@ class userController {
       res.status(500).json({ message: "Error creating user" });
     }
   };
- 
+
   static login = async (req, res) => {
     const { email, password } = req.body;
- 
+
     if (!email || !password) {
       return res
         .status(400)
         .json({ message: "Email and password are required" });
     }
- 
+
     try {
       const user = await userModel.findOne({ email }).lean();
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
- 
+
       const isValidPassword = await bcrypt.compare(password, user.password);
       if (!isValidPassword) {
         return res.status(401).json({ message: "Invalid password" });
       }
- 
+
       const roleId = user.roleId;
       const role = await Role.findById(roleId);
       const roleName = role.name;
- 
+
       let genToken = jwt.sign(
         {
           id: user._id,
@@ -211,9 +213,9 @@ class userController {
           role: roleName,
         },
         "secret",
-        {  algorithm: "HS256" }
+        { algorithm: "HS256" }
       );
- 
+
       // Login successful, return user data
       res.status(200).json({
         id: user._id,
@@ -237,18 +239,18 @@ class userController {
         .json({ message: "Error fetching roles", error: error.message });
     }
   };
- 
+
   // Get a user by ID
   static getUserById = async (req, res) => {
     try {
       const id = req.params.id;
       const user = await userModel.findById(id);
- 
+
       // Check if the user exists
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
- 
+
       res.json(user);
     } catch (err) {
       console.error("Error fetching user:", err);
@@ -263,7 +265,7 @@ class userController {
   //         console.error("Error uploading file:", err);
   //         return res.status(400).json({ message: "Error uploading file" });
   //       }
- 
+
   //       const {
   //         email,
   //         password,
@@ -272,27 +274,27 @@ class userController {
   //         firstName,
   //         lastName,
   //       } = req.body;
- 
+
   //       // Validate required fields
   //       if (!email) {
   //         console.error("Email is required");
   //         return res.status(400).json({ message: "Email is required" });
   //       }
- 
+
   //       if (password && !currentPassword) {
   //         console.error("Current password is required to update password");
   //         return res
   //           .status(400)
   //           .json({ message: "Current password is required to update password" });
   //       }
- 
+
   //       // Find the user by email
   //       const user = await userModel.findOne({ email });
   //       if (!user) {
   //         console.error("User not found");
   //         return res.status(404).json({ message: "User not found" });
   //       }
- 
+
   //       // Verify current password if password update is requested
   //       if (password) {
   //         const isValid = await bcrypt.compare(currentPassword, user.password);
@@ -300,18 +302,18 @@ class userController {
   //           console.error("Invalid current password");
   //           return res.status(401).json({ message: "Invalid current password" });
   //         }
- 
+
   //         // Hash new password using bcrypt
   //         const salt = await bcrypt.genSalt(10);
   //         const hashedPassword = await bcrypt.hash(password, salt);
   //         user.password = hashedPassword;
   //       }
- 
+
   //       // Update email if changed
   //       if (req.body.email && req.body.email !== user.email) {
   //         user.email = req.body.email;
   //       }
- 
+
   //       //update username if changed
   //       if (req.body.userName) {
   //         user.userName = req.body.userName;
@@ -320,7 +322,7 @@ class userController {
   //       if (req.body.firstName) {
   //         user.firstName = req.body.firstName;
   //       }
- 
+
   //       //update username if changed
   //       if (req.body.lastName) {
   //         user.lastName = req.body.lastName;
@@ -329,7 +331,7 @@ class userController {
   //       if (req.file) {
   //         user.profilePhoto = `${upload_URL}${req.file.filename}`;
   //       }
- 
+
   //       try {
   //         await user.save();
   //         res.status(200).json({ message: "User updated successfully" });
@@ -343,7 +345,7 @@ class userController {
   //     res.status(500).json({ message: "Error updating user" });
   //   }
   // };
- 
+
   static updateUser = async (req, res) => {
     try {
       upload.single("profilePhoto")(req, res, async (err) => {
@@ -351,7 +353,7 @@ class userController {
           console.error("Error uploading file:", err);
           return res.status(400).json({ message: "Error uploading file" });
         }
- 
+
         const {
           email,
           password,
@@ -361,29 +363,29 @@ class userController {
           lastName,
           active,
         } = req.body;
- 
+
         const userId = req.params.id;
- 
+
         // Validate required fields
         if (!userId) {
           console.error("User ID is required");
           return res.status(400).json({ message: "User ID is required" });
         }
- 
+
         if (password && !currentPassword) {
           console.error("Current password is required to update password");
           return res.status(400).json({
             message: "Current password is required to update password",
           });
         }
- 
+
         // Find the user by ID
         const user = await userModel.findById(userId);
         if (!user) {
           console.error("User not found");
           return res.status(404).json({ message: "User not found" });
         }
- 
+
         // Verify current password if password update is requested
         if (password) {
           const isValid = await bcrypt.compare(currentPassword, user.password);
@@ -393,18 +395,18 @@ class userController {
               .status(401)
               .json({ message: "Invalid current password" });
           }
- 
+
           // Hash new password using bcrypt
           const salt = await bcrypt.genSalt(10);
           const hashedPassword = await bcrypt.hash(password, salt);
           user.password = hashedPassword;
         }
- 
+
         // Update email if changed
         if (req.body.email && req.body.email !== user.email) {
           user.email = req.body.email;
         }
- 
+
         //update username if changed
         if (req.body.userName) {
           user.userName = req.body.userName;
@@ -413,20 +415,19 @@ class userController {
         if (req.body.firstName) {
           user.firstName = req.body.firstName;
         }
- 
+
         //update username if changed
         if (req.body.lastName) {
           user.lastName = req.body.lastName;
         }
-        if(req.body.active)
-        {
+        if (req.body.active) {
           user.active = req.body.active;
         }
         // Update profile photo if uploaded
         if (req.file) {
           user.profilePhoto = `${upload_URL}${req.file.filename}`;
         }
- 
+
         try {
           await user.save();
           res.status(200).json({ message: "User updated successfully" });
@@ -440,7 +441,7 @@ class userController {
       res.status(500).json({ message: "Error updating user" });
     }
   };
- 
+
   static updateAdminUser = async (req, res) => {
     try {
       // Handle file upload
@@ -449,52 +450,51 @@ class userController {
           console.error("Error uploading file:", err);
           return res.status(400).json({ message: "Error uploading file" });
         }
-   
-        const { email, userName, firstName, lastName,active } = req.body;
+
+        const { email, userName, firstName, lastName, active } = req.body;
         const userId = req.params.id;
-   
+
         // Validate required fields
         if (!userId) {
           console.error("User ID is required");
           return res.status(400).json({ message: "User ID is required" });
         }
-   
+
         // Find the user by ID
         const user = await userModel.findById(userId);
         if (!user) {
           console.error("User not found");
           return res.status(404).json({ message: "User not found" });
         }
-   
+
         // Update email if changed
         if (email && email !== user.email) {
           user.email = email;
         }
-   
+
         // Update username if changed
         if (userName) {
           user.userName = userName;
         }
-   
+
         // Update first name if changed
         if (firstName) {
           user.firstName = firstName;
         }
-   
+
         // Update last name if changed
         if (lastName) {
           user.lastName = lastName;
         }
-        if(active)
-        {
+        if (active) {
           user.active = active;
         }
-   
+
         // Update profile photo if uploaded
         if (req.file) {
           user.profilePhoto = `${upload_URL}${req.file.filename}`;
         }
-   
+
         // Save the updated user
         try {
           await user.save();
@@ -509,7 +509,7 @@ class userController {
       res.status(500).json({ message: "Error updating user" });
     }
   };
- 
+
   //delete user
   static deleteUser = async (req, res) => {
     try {
@@ -517,12 +517,12 @@ class userController {
       if (!userId) {
         return res.status(400).json({ message: "User ID is required" });
       }
- 
+
       const user = await userModel.deleteOne({ _id: userId });
       if (user.deletedCount === 0) {
         return res.status(404).json({ message: "User not found" });
       }
- 
+
       res.json({ message: "User deleted successfully" });
     } catch (error) {
       console.error(error);
@@ -531,38 +531,40 @@ class userController {
         .json({ message: "Error deleting user", error: error.message });
     }
   };
- 
+
   static resetPassword = async (req, res) => {
     try {
       // Extract userId from params and update data from body
-      const   {id}  = req.params;
-       
+      const { id } = req.params;
+
       const { password } = req.body;
- 
+
       // Validate userId format
       if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ message: 'Invalid User ID format' });
+        return res.status(400).json({ message: "Invalid User ID format" });
       }
-   
- 
+
       // Hash the new password
       const hashedPassword = await bcrypt.hash(password, 10);
- 
+
       // Update the user with the new hashed password
       const updatedUser = await userModel.findByIdAndUpdate(
         id,
-        { $set: { password: hashedPassword } },  // Ensure only the password is updated
+        { $set: { password: hashedPassword } }, // Ensure only the password is updated
         { new: true }
       );
- 
+
       if (!updatedUser) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message: "User not found" });
       }
- 
-      res.status(200).json({ message: 'Password reset successfully', updatedUser });
+
+      res
+        .status(200)
+        .json({ message: "Password reset successfully", updatedUser });
     } catch (error) {
-       
-      res.status(500).json({ message: 'Error updating password', error: error.message });
+      res
+        .status(500)
+        .json({ message: "Error updating password", error: error.message });
     }
   };
 }
