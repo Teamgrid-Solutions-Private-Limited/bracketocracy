@@ -27,7 +27,9 @@ const matchSchema = mongoose.Schema({
     enum: ["upcoming", "completed", "bye"],
     default: "upcoming",
   }, // Change this from Boolean to String
-
+  roundSlug: {
+    type: String,
+  },
   zoneSlug: {
     type: String,
   },

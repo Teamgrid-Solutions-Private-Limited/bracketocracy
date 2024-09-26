@@ -1,34 +1,38 @@
-// routes/matchRoutes.js
-
 const express = require("express");
 const router = express.Router();
-const matchController = require("../controllers/matchController");
+const MatchController = require("../controllers/matchController");
 
-// Initialize Round One
-router.post("/initializeRoundOne", matchController.initializeRoundOne);
+// Create matches for the next round using winners from the previous round
+router.post("/matches/createNextRound", MatchController.createNextRound);
 
-// Create Matches for Next Round
-router.post("/createNextRound", matchController.createNextRound);
+// Automatically progress teams from each zone to the finals
+router.post("/matches/progressToFinals", MatchController.progressToFinals);
 
-// Progress to Next Round
-router.post("/progressToNextRound", matchController.progressToNextRound);
+// Create final four matches
+router.post(
+  "/matches/createFinalFourMatches",
+  MatchController.createFinalFourMatches
+);
 
-// Create a Match
-router.post("/create", matchController.createMatch);
+// Create championship match based on final four winners
+router.post(
+  "/matches/createChampionshipMatch",
+  MatchController.createChampionshipMatch
+);
 
-// Get a Match by ID
-router.get("/:id", matchController.getMatchById);
+// Get a single match by ID
+router.get("/matches/:id", MatchController.getMatchById);
 
-// Update Final Scores
-router.patch("/:id/finalScores", matchController.finalScores);
+// Update final scores and determine the winner
+router.put("/matches/:id/finalScores", MatchController.finalScores);
 
-// Delete a Match
-router.delete("/:id", matchController.deleteMatch);
+// Delete a match by ID
+router.delete("/matches/:id", MatchController.deleteMatch);
 
-// Update a Match
-router.put("/:id", matchController.updateMatch);
+// Update a match
+router.put("/matches/:id", MatchController.updateMatch);
 
-// Get All Matches
-//router.get("/", matchController.getMatch);
+// Get all matches with populated details
+router.get("/matches", MatchController.getMatch);
 
 module.exports = router;
