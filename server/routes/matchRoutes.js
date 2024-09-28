@@ -14,12 +14,6 @@ router.post(
   MatchController.createFinalFourMatches
 );
 
-// Create championship match based on final four winners
-router.post(
-  "/matches/createChampionshipMatch",
-  MatchController.createChampionshipMatch
-);
-
 // Get a single match by ID
 router.get("/matches/:id", MatchController.getMatchById);
 
