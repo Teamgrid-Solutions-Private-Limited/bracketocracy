@@ -6,12 +6,12 @@ const MatchController = require("../controllers/matchController");
 router.post("/matches/createNextRound", MatchController.createNextRound);
 
 // Automatically progress teams from each zone to the finals
-router.post("/matches/progressToFinals", MatchController.progressToFinals);
+router.post("/matches/championmatch", MatchController.createChampionshipMatch);
 
 // Create final four matches
 router.post(
-  "/matches/createFinalFourMatches",
-  MatchController.createFinalFourMatches
+  "/matches/progressToFinalFour",
+  MatchController.progressToFinalFour
 );
 
 // Get a single match by ID
