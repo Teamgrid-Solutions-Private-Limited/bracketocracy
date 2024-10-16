@@ -4,11 +4,11 @@ const nodemailer = require('nodemailer');
 class emailController {
     constructor() {
         this.transporter = nodemailer.createTransport({
-            host: 'smtp.ethereal.email',
+            host: 'smtp.gmail.com',
             port: 587,
             auth: {
-                 user: 'sigurd.jaskolski@ethereal.email',
-                 pass: 'QTM1XBZ4zc4TBKF5Sa'
+                 user: 'disusamor45@gmail.com',
+                 pass: 'kgoh yjlf eolq xxud'
             }
         });
     }
@@ -24,7 +24,7 @@ class emailController {
         }
 
         const mailOptions = {
-            from: 'sigurd.jaskolski@ethereal.email',
+            from: 'disusamor45@gmail.com',
             to: to,
             subject: 'Reset Password',
             text: 'hello world'
